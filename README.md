@@ -16,7 +16,7 @@ Library Prep
 
 1. Bam2fastq
 2. Jellyfish
-3. genoscope
+3. GenomeScope
 4. MitoHiFi assembly
 4. Blast filtering
 5. Hifiasm
@@ -154,11 +154,11 @@ conda activate pbtk
 conda install -y -c bioconda -c conda-forge seqkit
 
 #convert bam to fastq
-bam2fastq -o hifi_reads /work/pi_hputnam_uri_edu/Ptua_genome/raw/m84100_251021_203206_s3.hifi_reads.bam
-gzip /work/pi_hputnam_uri_edu/Ptua_genome/raw/Ptua_hifi_reads.fastq
+bam2fastq -o Ptua_hifi_reads /work/pi_hputnam_uri_edu/Ptua_genome/raw/m84100_251021_203206_s3.hifi_reads.bam
+gzip Ptua_hifi_reads.fastq
 
 #generate fastq summary metrics
-seqkit stats /work/pi_hputnam_uri_edu/Ptua_genome/raw/Ptua_hifi_reads.fastq
+seqkit stats /work/pi_hputnam_uri_edu/Ptua_genome/Ptua_hifi_reads.fastq.gz
 
 
 ```
@@ -173,15 +173,108 @@ first read hit to SAR covid, not ideal, but it is a super short region
 second read hit to Pocillopora verrucosa, great news!
 third read hit to Pocillopora verrucosa, great news!
 
-1. Jellyfish
-2. genoscope
-3. MitoHiFi assembly
-4. Blast filtering
-5. Hifiasm
-6. Quast
-7. RepeatModeler
-8. RepeatMasker
-9. BUSCO
-10. funannotate
-11. Interproscan
-12. EggNOG
+
+## Convert FASTQ to FASTA
+
+```
+nano /work/pi_hputnam_uri_edu/Ptua_genome/scripts/convert_fastq_fasta.sh
+```
+
+```
+#!/bin/bash
+#SBATCH --job-name=convert_fastq_fasta
+#SBATCH --nodes=1 --cpus-per-task=8
+#SBATCH --mem=250G  # Requested Memory
+#SBATCH -p gpu  # Partition
+#SBATCH -G 1  # Number of GPUs
+#SBATCH --time=06:00:00  # Job time limit
+#SBATCH -o slurm-convert_fastq_fasta.out  # %j = job ID
+#SBATCH -e slurm-convert_fastq_fasta.err  # %j = job ID
+#SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
+
+#load modules if needed
+conda activate pbtk
+conda install -y -c bioconda -c conda-forge seqtk
+
+echo "Convert PacBio fastq file to fasta file" $(date)
+
+seqtk seq -A Ptua_hifi_reads.fastq.gz > Ptua_hifi_reads.fasta
+
+echo "Fastq to fasta complete! Summarize read lengths" $(date)
+
+awk '/^>/ { if (seq) {print header"\t"length(seq)}; header=substr($0,2); seq="" ; next } 
+     {seq=seq$0} 
+     END {print header"\t"length(seq)}' Ptua_hifi_reads.fasta > Ptua_rr_read_lengths.txt
+
+echo "Read length summary complete" $(date)
+
+```
+
+```
+sbatch /work/pi_hputnam_uri_edu/Ptua_genome/scripts/convert_fastq_fasta.sh
+```
+
+
+## describe kmers and estimate nuclear genome size and heterozygosity
+Jellyfish and Genoscope
+
+
+```
+nano /work/pi_hputnam_uri_edu/Ptua_genome/scripts/kmercount_jellyfish.sh
+```
+
+```
+#!/bin/bash
+#SBATCH --job-name=kmercount_jellyfish
+#SBATCH --nodes=1 --cpus-per-task=8
+#SBATCH --mem=250G  # Requested Memory
+#SBATCH -p gpu  # Partition
+#SBATCH -G 1  # Number of GPUs
+#SBATCH --time=06:00:00  # Job time limit
+#SBATCH -o slurm-kmercount_jellyfish.out  # %j = job ID
+#SBATCH -e slurm-kmercount_jellyfish.err  # %j = job ID
+#SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
+
+#load modules if needed
+module load conda/latest 
+
+# Activate conda env
+conda activate pbtk   # or your env
+conda install -y -c bioconda -c conda-forge jellyfish pigz
+
+#run jellyfish kmer count 
+jellyfish count \
+  -m 31 -C -s 1G -t 32 \
+  Ptua_hifi_reads.fastq.gz \
+  -o Ptua_k31.jf
+
+#generate histo for genomescope  
+jellyfish histo -t 32 Ptua_k31.jf > Ptua_k31.histo.txt
+jellyfish histo -t 32 -L 2 Ptua_k31.jf > Ptua_k31.L2.histo.txt   # filters singletons (optional)
+
+```
+
+
+```
+sbatch /work/pi_hputnam_uri_edu/Ptua_genome/scripts/kmercount_jellyfish.sh
+```
+
+### genomescope2
+Estimate genome heterozygosity, repeat content, and size from sequencing reads using a kmer-based statistical approach.
+http://genomescope.org/genomescope2.0/
+
+
+
+2. genomescope to estimate genome heterozygosity, repeat content, and size 
+3. MitoHiFi assembly to assemble the mitochondrial genome
+4. Blast filtering to remove non-coral reads
+5. Hifiasm to assembly
+6. ntlinks to further scaffold the assembly
+7. Ragout (Reference-Assisted Genome Ordering UTility) is a tool for chromosome-level scaffolding using multiple references. - Consider running this 
+6. Quast to report assembly stats
+7. BUSCO to report assembly stats
+8. RepeatModeler for structural annotation
+9. RepeatMasker for structural annotation
+10. funannotate for structural annotation and functional annotation
+11. Interproscan for functional annotation
+12. EggNOG for functional annotation
