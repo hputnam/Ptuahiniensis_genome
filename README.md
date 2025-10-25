@@ -154,11 +154,10 @@ conda activate pbtk
 conda install -y -c bioconda -c conda-forge seqkit
 
 #convert bam to fastq
-bam2fastq -o Ptua_hifi_reads /work/pi_hputnam_uri_edu/Ptua_genome/raw/m84100_251021_203206_s3.hifi_reads.bam
-gzip Ptua_hifi_reads.fastq
+bam2fastq -o Ptua_hifi_reads /work/pi_hputnam_uri_edu/Ptua_genome/raw/m84100_251021_203206_s3.hifi_reads.bam | pigz -p 32 -n > Ptua_hifi_reads.fastq.gz
 
 #generate fastq summary metrics
-seqkit stats /work/pi_hputnam_uri_edu/Ptua_genome/Ptua_hifi_reads.fastq.gz
+seqkit stats Ptua_hifi_reads.fastq.gz
 
 
 ```
@@ -168,9 +167,18 @@ seqkit stats /work/pi_hputnam_uri_edu/Ptua_genome/Ptua_hifi_reads.fastq.gz
 sbatch /work/pi_hputnam_uri_edu/Ptua_genome/scripts/convert_bam2fastq.sh
 ```
 
+
+|file   | format  | type |  num_seqs   | sum_len  | min_len  | avg_len |  max_len|
+|---|---|---|---|---|---|---|---|
+`Ptua_hifi_reads.fastq.gz` | FASTQ | DNA | 12,313,988 |54,955,182,557 | 91 | 4,462.8 |   24,697
+
+
+
 ### sanity check with manual blast of read from fastq file
-first read hit to SAR covid, not ideal, but it is a super short region
+first read hit to SAR covid, not ideal, but it is a super short region on the ends of a long sequence
+
 second read hit to Pocillopora verrucosa, great news!
+
 third read hit to Pocillopora verrucosa, great news!
 
 
@@ -193,6 +201,7 @@ nano /work/pi_hputnam_uri_edu/Ptua_genome/scripts/convert_fastq_fasta.sh
 #SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
 
 #load modules if needed
+module load conda/latest 
 conda activate pbtk
 conda install -y -c bioconda -c conda-forge seqtk
 
@@ -230,7 +239,7 @@ nano /work/pi_hputnam_uri_edu/Ptua_genome/scripts/kmercount_jellyfish.sh
 #SBATCH --mem=250G  # Requested Memory
 #SBATCH -p gpu  # Partition
 #SBATCH -G 1  # Number of GPUs
-#SBATCH --time=06:00:00  # Job time limit
+#SBATCH --time=12:00:00  # Job time limit
 #SBATCH -o slurm-kmercount_jellyfish.out  # %j = job ID
 #SBATCH -e slurm-kmercount_jellyfish.err  # %j = job ID
 #SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
@@ -243,14 +252,16 @@ conda activate pbtk   # or your env
 conda install -y -c bioconda -c conda-forge jellyfish pigz
 
 #run jellyfish kmer count 
-jellyfish count \
-  -m 31 -C -s 1G -t 32 \
-  Ptua_hifi_reads.fastq.gz \
-  -o Ptua_k31.jf
+pigz -dc Ptua_hifi_reads.fastq.gz \
+  | jellyfish count -m 31 -C -s 1G -t 32 /dev/fd/0 -o Ptua_k31.jf
+  
+echo "JF counting complete" $(date)
 
 #generate histo for genomescope  
 jellyfish histo -t 32 Ptua_k31.jf > Ptua_k31.histo.txt
-jellyfish histo -t 32 -L 2 Ptua_k31.jf > Ptua_k31.L2.histo.txt   # filters singletons (optional)
+jellyfish histo -t 32 -l 2 Ptua_k31.jf > Ptua_k31.L2.histo.txt   # filters singletons (optional)
+
+echo "JF histo complete" $(date)
 
 ```
 
@@ -259,15 +270,76 @@ jellyfish histo -t 32 -L 2 Ptua_k31.jf > Ptua_k31.L2.histo.txt   # filters singl
 sbatch /work/pi_hputnam_uri_edu/Ptua_genome/scripts/kmercount_jellyfish.sh
 ```
 
+scp -r hputnam_uri_edu@unity.rc.umass.edu://work/pi_hputnam_uri_edu/Ptua_genome/Ptua_k31.histo.txt /Users/hputnam/MyProjects/Ptuahiniensis_genome/
+
+
 ### genomescope2
 Estimate genome heterozygosity, repeat content, and size from sequencing reads using a kmer-based statistical approach.
 http://genomescope.org/genomescope2.0/
 
 
 
-2. genomescope to estimate genome heterozygosity, repeat content, and size 
-3. MitoHiFi assembly to assemble the mitochondrial genome
+
+
+
+
+
+
+Chromosome level assembly for P. verrucosa
+https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_036669915.1/
+
+### MitoHiFi assembly to assemble the mitochondrial genome
+https://www.sciencedirect.com/science/article/pii/S0378111907003666?via%3Dihub
+https://www.ncbi.nlm.nih.gov/nuccore/EF526302.1 
+
+scp -r /Users/hputnam/Downloads/EF526302.1.* hputnam_uri_edu@unity.rc.umass.edu://work/pi_hputnam_uri_edu/Ptua_genome/ 
+
+mkdir /work/pi_hputnam_uri_edu/Ptua_genome/mito
+
+```
+nano /work/pi_hputnam_uri_edu/Ptua_genome/scripts/mito_assemble.sh
+```
+
+```
+#!/bin/bash
+#SBATCH --job-name=mito_assemble
+#SBATCH --nodes=1 --cpus-per-task=8
+#SBATCH --mem=250G  # Requested Memory
+#SBATCH -p gpu  # Partition
+#SBATCH -G 1  # Number of GPUs
+#SBATCH --time=12:00:00  # Job time limit
+#SBATCH -o slurm-mito_assemble.out  # %j = job ID
+#SBATCH -e slurm-mito_assemble.err  # %j = job ID
+#SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
+
+echo "Starting mito assembly with Pocillopora refs" $(date)
+
+#load modules if needed
+
+cd /work/pi_hputnam_uri_edu/Ptua_genome
+
+singularity exec --bind /work/pi_hputnam_uri_edu/Ptua_genome/ docker://ghcr.io/marcelauliano/mitohifi:master mitohifi.py -r Ptua_hifi_reads.fasta \
+ -f EF526302.1.fasta -g EF526302.1.gb \
+ -t 8 \
+ -o 5 #invert code 
+
+echo "Mito assembly complete!" $(date)
+```
+
+```
+sbatch /work/pi_hputnam_uri_edu/Ptua_genome/scripts/mito_assemble.sh
+```
+scp -r hputnam_uri_edu@unity.rc.umass.edu://work/pi_hputnam_uri_edu/Ptua_genome/final_mitogenome.fasta /Users/hputnam/MyProjects/Ptuahiniensis_genome/
+
+
+
+
+
 4. Blast filtering to remove non-coral reads
+
+
+
+
 5. Hifiasm to assembly
 6. ntlinks to further scaffold the assembly
 7. Ragout (Reference-Assisted Genome Ordering UTility) is a tool for chromosome-level scaffolding using multiple references. - Consider running this 
