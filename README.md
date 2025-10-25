@@ -12,7 +12,7 @@ Library Prep
 2025-10-23 18:20:50 20377834269 m84100_251021_203206_s3.hifi_reads.bam
 2025-10-23 18:20:50  129896502 m84100_251021_203206_s3.hifi_reads.bam.pbi
 
-### Steps
+### Main Steps
 
 1. Bam2fastq
 2. Jellyfish
@@ -27,6 +27,11 @@ Library Prep
 10. funannotate
 11. Interproscan
 12. EggNOG
+
+### Resources 
+[Chromosome level assembly for P. verrucosa](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_036669915.1/)
+
+
 
 
 ## SMRT Link report key info
@@ -276,17 +281,18 @@ scp -r hputnam_uri_edu@unity.rc.umass.edu://work/pi_hputnam_uri_edu/Ptua_genome/
 ### genomescope2
 Estimate genome heterozygosity, repeat content, and size from sequencing reads using a kmer-based statistical approach.
 http://genomescope.org/genomescope2.0/
+GenomeScope version 2.0
+input file = user_uploads/XRcuKFUQFpK0dZp0UUke = Ptua_k31.histo.txt
+output directory = user_data/XRcuKFUQFpK0dZp0UUke
+p = 2
+k = 31
+initial kmercov estimate = 73
+max_kmercov = 600
+
+[Results](http://genomescope.org/genomescope2.0/analysis.php?code=XRcuKFUQFpK0dZp0UUke) 
+GenomeScope2 (k = 31, diploid) indicates a ~290 Mb haploid genome with ~85 % unique content, ~1.4 % heterozygosity, < 0.5 % sequencing error, and minimal duplication
 
 
-
-
-
-
-
-
-
-Chromosome level assembly for P. verrucosa
-https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_036669915.1/
 
 ### MitoHiFi assembly to assemble the mitochondrial genome
 https://www.sciencedirect.com/science/article/pii/S0378111907003666?via%3Dihub
@@ -331,6 +337,13 @@ sbatch /work/pi_hputnam_uri_edu/Ptua_genome/scripts/mito_assemble.sh
 ```
 scp -r hputnam_uri_edu@unity.rc.umass.edu://work/pi_hputnam_uri_edu/Ptua_genome/final_mitogenome.fasta /Users/hputnam/MyProjects/Ptuahiniensis_genome/
 
+
+#### Check the Mito Assembly
+The mitochondrial genome was successfully assembled using MitoHifi.
+
+MitoFinder found a single mitochondrial contig. Evidences of circularization could not be found, but everyother step was successful
+
+The assembled P. tuahiniensis mitogenome is 16884 bp in length with 16 protein-coding genes and contains 2 transfer RNA (tRNA) coding genes.
 
 
 
