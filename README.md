@@ -350,6 +350,173 @@ The assembled P. tuahiniensis mitogenome is 16884 bp in length with 16 protein-c
 
 4. Blast filtering to remove non-coral reads
 
+BLAST Ptua hifi raw reads against the following for contaminant removal: 
+
+- Euk contam seqs 
+- Viral representative genomes (`/datasets/bio/ncbi-db/2025-11-16`)
+- Prok representative genomes (`/datasets/bio/ncbi-db/2025-11-16`)
+- Sym genomes 
+- Mito -- do the above filtering steps first, rerun mito hifi and then filter mito reads out
+
+`nano blastn_contam_euk.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 --ntasks-per-node=2
+#SBATCH --partition=uri-cpu
+#SBATCH --no-requeue
+#SBATCH --mem=100GB
+#SBATCH -t 24:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL #email you when job starts, stops and/or fails
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
+
+cd /work/pi_hputnam_uri_edu/Ptua_genome
+
+module load uri/main
+module load BLAST+/2.15.0-gompi-2023a 
+
+#wget contam_screen/ftp.ncbi.nlm.nih.gov/pub/kitts/contam_in_euks.fa.gz
+#gunzip contam_screen/contam_in_euks.fa.gz
+
+echo "Make BLAST db of euk contam seqs" $(date)
+
+makeblastdb -in contam_screen/contam_in_euks.fa -dbtype nucl -out contam_screen/contam_euk_db
+
+echo "BLAST hifi reads against euk contam seqs" $(date)
+
+blastn \
+  -query Ptua_hifi_reads.fasta \
+  -db contam_screen/contam_euk_db \
+  -out euk_contaminant_hits_rr.txt \
+  -outfmt "6 qseqid sseqid evalue bitscore" \
+  -evalue 1e-4
+  
+echo "BLAST to euk contam seqs complete" $(date)
+```
+
+Submitted batch job 49030581
+
+Unity has the viral and prok dbs downloaded here: `/datasets/bio/ncbi-db`. They are updated every two weeks. 
+
+`nano blastn_contam_viral.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 --ntasks-per-node=2
+#SBATCH --partition=uri-cpu
+#SBATCH --no-requeue
+#SBATCH --mem=100GB
+#SBATCH -t 5-00:00:00
+#SBATCH -q long
+#SBATCH --mail-type=BEGIN,END,FAIL #email you when job starts, stops and/or fails
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
+
+cd /work/pi_hputnam_uri_edu/Ptua_genome
+
+module load uri/main
+module load BLAST+/2.15.0-gompi-2023a 
+
+## No need to build blast db, viral db already created 
+
+echo "BLAST hifi reads against viral genome seqs" $(date)
+
+blastn \
+  -query Ptua_hifi_reads.fasta \
+  -db /datasets/bio/ncbi-db/2025-11-16/ref_viruses_rep_genomes \
+  -out viral_contaminant_hits_rr.txt \
+  -outfmt "6 qseqid sseqid evalue bitscore" \
+  -evalue 1e-4
+  
+echo "BLAST to viral genome seqs complete" $(date)
+```
+
+Submitted batch job 49030637
+
+`nano blastn_contam_prok.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 --ntasks-per-node=2
+#SBATCH --partition=uri-cpu
+#SBATCH --no-requeue
+#SBATCH --mem=100GB
+#SBATCH -t 5-00:00:00
+#SBATCH -q long
+#SBATCH --mail-type=BEGIN,END,FAIL #email you when job starts, stops and/or fails
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
+
+cd /work/pi_hputnam_uri_edu/Ptua_genome
+
+module load uri/main
+module load BLAST+/2.15.0-gompi-2023a 
+
+## No need to build blast db, prok db already created 
+
+echo "BLAST hifi reads against prok genome seqs" $(date)
+
+blastn \
+  -query Ptua_hifi_reads.fasta \
+  -db /datasets/bio/ncbi-db/2025-11-16/ref_prok_rep_genomes \
+  -out prok_contaminant_hits_rr.txt \
+  -outfmt "6 qseqid sseqid evalue bitscore" \
+  -evalue 1e-4
+  
+echo "BLAST to prok genome seqs complete" $(date)
+```
+
+Submitted batch job 49030912
+
+Symbiont genomes are here: `/work/pi_hputnam_uri_edu/Symbiont_Genomes`. `nano blastn_contam_sym.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 --ntasks-per-node=2
+#SBATCH --partition=uri-cpu
+#SBATCH --no-requeue
+#SBATCH --mem=100GB
+#SBATCH -t 5-00:00:00
+#SBATCH -q long
+#SBATCH --mail-type=BEGIN,END,FAIL #email you when job starts, stops and/or fails
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
+
+cd /work/pi_hputnam_uri_edu/Ptua_genome
+
+module load uri/main
+module load BLAST+/2.15.0-gompi-2023a 
+
+echo "Concatenate sym genomes for BLAST " $(date)
+cat /work/pi_hputnam_uri_edu/Symbiont_Genomes/C_goreaui_cladeC1/SymbC1.Genome.Scaffolds.fasta /work/pi_hputnam_uri_edu/Symbiont_Genomes/Durusdinium_sp/102_symbd_genome_scaffold.fa /work/pi_hputnam_uri_edu/Symbiont_Genomes/Cladocopium_goreaui_SCF055/Cladocopium_goreaui/Cladocopium_goreaui.genome.fa /work/pi_hputnam_uri_edu/Symbiont_Genomes/Symbiodinium_CladeC/symC_scaffold_40.fasta /work/pi_hputnam_uri_edu/Symbiont_Genomes/Cladocopium_sp_C15/SymbC15_plutea_v2.1.fna /work/pi_hputnam_uri_edu/Symbiont_Genomes/Cladocopium_sp_C92/Cladocopium_sp_C92/Cladocopium_sp_C92.genome.fa > ptua_sym_genomes_cat.fa
+
+echo "Make BLAST db of sym genome seqs" $(date)
+
+makeblastdb -in ptua_sym_genomes_cat.fa -dbtype nucl -out sym_genomes_db
+
+echo "BLAST hifi reads against sym genome seqs" $(date)
+
+blastn \
+  -query Ptua_hifi_reads.fasta \
+  -db sym_genomes_db \
+  -out sym_contaminant_hits_rr.txt \
+  -outfmt "6 qseqid sseqid evalue bitscore" \
+  -evalue 1e-4
+  
+echo "BLAST to sym genome seqs complete" $(date)
+```
+
+Submitted batch job 49031277
+
 
 
 
