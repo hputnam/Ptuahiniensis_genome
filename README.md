@@ -515,7 +515,81 @@ blastn \
 echo "BLAST to sym genome seqs complete" $(date)
 ```
 
-Submitted batch job 49031277
+Submitted batch job 49031277. 
+
+Filter so that hits with bit score <1000 are removed and remove the larger blast file.
+
+```
+awk '$NF > 1000' viral_contaminant_hits_rr.txt > viral_contaminant_hits_rr_bit1000.txt
+wc -l viral_contaminant_hits_rr_bit1000.txt
+38 viral_contaminant_hits_rr_bit1000.txt
+rm viral_contaminant_hits_rr.txt
+
+awk '$NF > 1000' euk_contaminant_hits_rr.txt > euk_contaminant_hits_rr_bit1000.txt
+wc -l euk_contaminant_hits_rr_bit1000.txt
+416 euk_contaminant_hits_rr_bit1000.txt
+rm euk_contaminant_hits_rr.txt
+
+awk '$NF > 1000' prok_contaminant_hits_rr.txt > prok_contaminant_hits_rr_bit1000.txt
+wc -l prok_contaminant_hits_rr_bit1000.txt
+767239 prok_contaminant_hits_rr_bit1000.txt
+rm prok_contaminant_hits_rr.txt
+
+awk '$NF > 1000' sym_contaminant_hits_rr.txt > sym_contaminant_hits_rr_bit1000.txt
+wc -l sym_contaminant_hits_rr_bit1000.txt
+9573384 sym_contaminant_hits_rr_bit1000.txt
+rm sym_contaminant_hits_rr.txt
+```
+
+Cat contamination files together and make list of unique reads to remove from the fasta file. 
+
+```
+cat viral_contaminant_hits_rr_bit1000.txt euk_contaminant_hits_rr_bit1000.txt prok_contaminant_hits_rr_bit1000.txt sym_contaminant_hits_rr_bit1000.txt > contamaminant_hits_rr_bit1000.txt
+
+awk '{print $1}' contamaminant_hits_rr_bit1000.txt | sort -u > reads_to_remove.txt
+wc -l reads_to_remove.txt 
+445169 reads_to_remove.txt
+```
+
+Remove contaminant reads from raw reads. `nano filter_contaminants.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 --ntasks-per-node=2
+#SBATCH --partition=uri-cpu
+#SBATCH --no-requeue
+#SBATCH --mem=100GB
+#SBATCH -t 100:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL #email you when job starts, stops and/or fails
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
+
+module load uri/main
+module load seqtk/1.4-GCC-12.3.0
+
+echo "Make list of all reads and remove contam reads" $(date)
+grep "^>" Ptua_hifi_reads.fasta | sed 's/^>//' > Ptua_fasta_reads.txt
+grep -v -F -f reads_to_remove.txt Ptua_fasta_reads.txt > filtered_reads.txt
+
+echo "Filtering hifi reads that passed contamination filtering" $(date)
+
+cd /work/pi_hputnam_uri_edu/Ptua_genome
+
+seqtk subseq Ptua_hifi_reads.fasta filtered_reads.txt > Ptua_hiti_filtered_reads.fasta
+
+grep -c ">" Ptua_hifi_reads.fasta
+grep -c ">" Ptua_hiti_filtered_reads.fasta
+
+echo "Filtering complete!" $(date)
+```
+
+Submitted batch job 49203578
+
+Rerun mito hifi with filtered reads as input. 
+
+
 
 
 
