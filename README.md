@@ -348,7 +348,7 @@ The assembled P. tuahiniensis mitogenome is 16884 bp in length with 16 protein-c
 
 
 
-4. Blast filtering to remove non-coral reads
+## Blast filtering to remove non-coral reads
 
 BLAST Ptua hifi raw reads against the following for contaminant removal: 
 
