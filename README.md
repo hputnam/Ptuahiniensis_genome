@@ -294,7 +294,8 @@ GenomeScope2 (k = 31, diploid) indicates a ~290 Mb haploid genome with ~85 % uni
 
 
 
-### MitoHiFi assembly to assemble the mitochondrial genome
+## MitoHiFi assembly to assemble the mitochondrial genome
+
 https://www.sciencedirect.com/science/article/pii/S0378111907003666?via%3Dihub
 https://www.ncbi.nlm.nih.gov/nuccore/EF526302.1 
 
@@ -587,7 +588,50 @@ echo "Filtering complete!" $(date)
 
 Submitted batch job 49203578
 
-Rerun mito hifi with filtered reads as input. 
+Rerun the mito hifi script (`mito_assemble.sh`) with filtered reads (`Ptua_hiti_filtered_reads.fasta`) as input. Submitted batch job 49388384. 
+
+Mitochondrial genome was successfully assembled, and two mito contigs were found (`ptg000010l` and `ptg000015l`). Evidence of circularization was not found in either contig but all other steps were successful. `ptg000015l` was selected by the software as the most representative contig. The final mitogeneome (`ptg000015l`) is 15614 bp in length with GC content of 31.02%. The mitogenome contains 12 protein coding genes, 3 tRNA coding genes, and two rRNA coding genes. 
+
+Blast mitogenome against raw reads for removal. `nano blastn_contam_mito.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 --ntasks-per-node=2
+#SBATCH --partition=uri-cpu
+#SBATCH --no-requeue
+#SBATCH --mem=100GB
+#SBATCH -t 24:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL #email you when job starts, stops and/or fails
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
+
+cd /work/pi_hputnam_uri_edu/Ptua_genome
+
+module load uri/main
+module load BLAST+/2.15.0-gompi-2023a 
+
+echo "Make BLAST db of mitogenome seqs" $(date)
+
+makeblastdb -in final_mitogenome.fasta -dbtype nucl -out contam_screen/mito_db
+
+echo "BLAST hifi reads against euk contam seqs" $(date)
+
+blastn \
+  -query Ptua_hifi_reads.fasta \
+  -db contam_screen/mito_db \
+  -out mito_contaminant_hits_rr.txt \
+  -outfmt "6 qseqid sseqid evalue bitscore" \
+  -evalue 1e-4
+  
+echo "BLAST to euk mitogenome seqs complete" $(date)
+```
+
+Submitted batch job 49391771
+
+
+
 
 
 
