@@ -578,7 +578,7 @@ echo "Filtering hifi reads that passed contamination filtering" $(date)
 
 cd /work/pi_hputnam_uri_edu/Ptua_genome
 
-seqtk subseq Ptua_hifi_reads.fasta filtered_reads.txt > Ptua_hiti_filtered_reads.fasta
+seqtk subseq Ptua_hifi_reads.fasta filtered_reads.txt > Ptua_hifi_filtered_reads.fasta
 
 grep -c ">" Ptua_hifi_reads.fasta
 grep -c ">" Ptua_hiti_filtered_reads.fasta
@@ -628,18 +628,88 @@ blastn \
 echo "BLAST to euk mitogenome seqs complete" $(date)
 ```
 
-Submitted batch job 49391771
+Submitted batch job 49391771. Filter so that hits with bit score <1000 are removed and remove the larger blast file.
+
+```
+awk '$NF > 1000' mito_contaminant_hits_rr.txt > mito_contaminant_hits_rr_bit1000.txt
+wc -l mito_contaminant_hits_rr_bit1000.txt
+55972 mito_contaminant_hits_rr_bit1000.txt
+rm mito_contaminant_hits_rr.txt
+```
+
+Cat contamination files together and make list of unique reads to remove from the fasta file. 
+
+```
+cat viral_contaminant_hits_rr_bit1000.txt euk_contaminant_hits_rr_bit1000.txt prok_contaminant_hits_rr_bit1000.txt sym_contaminant_hits_rr_bit1000.txt mito_contaminant_hits_rr_bit1000.txt > contamaminant_hits_rr_bit1000.txt
+
+awk '{print $1}' contamaminant_hits_rr_bit1000.txt | sort -u > reads_to_remove.txt
+wc -l reads_to_remove.txt 
+479623 reads_to_remove.txt
+```
+
+Rerun `filter_contaminants.sh` with all contaminants identified (eukaryote, prokaryote, viral, symbiont, mitochondrial). Submitted batch job 49402682. The raw read fasta file (`Ptua_hifi_reads.fasta`) has 12313988 reads, while the cleaned and filtered fasta file (`Ptua_hiti_filtered_reads.fasta`) has 11834365 reads. 
+
+## Hifiasm to assembly
+
+Install [Hifiasm](https://github.com/chhylp123/hifiasm) on Unity.
+
+```
+cd /work/pi_hputnam_uri_edu/conda/envs
+module load conda/latest # need to load before making any conda envs
+conda config --add channels bioconda
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+conda create --prefix /work/pi_hputnam_uri_edu/conda/envs/hifiasm hifiasm
+conda activate /work/pi_hputnam_uri_edu/conda/envs/hifiasm 
+```
+
+Run hifiasm on cleaned and filtered reads. `nano hifiasm.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 --ntasks-per-node=8
+#SBATCH --partition=uri-cpu
+#SBATCH --no-requeue
+#SBATCH --mem=100GB
+#SBATCH -t 5-00:00:00
+#SBATCH -q long
+#SBATCH --mail-type=BEGIN,END,FAIL #email you when job starts, stops and/or fails
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
+
+module load conda/latest 
+conda activate /work/pi_hputnam_uri_edu/conda/envs/hifiasm 
+
+cd /work/pi_hputnam_uri_edu/Ptua_genome
+
+echo "Starting assembly with hifiasm" $(date)
+
+hifiasm -o Ptua_hifiasm Ptua_hifi_filtered_reads.fasta --primary -s 0.55 -t 8 2> Ptua_hifiasm_s55_primary.log
+
+echo "Assembly with hifiasm complete!" $(date)
+
+conda deactivate
+```
+
+Submitted batch job 49403559. This will take a few days to run. 
+
+## ntlink to further scaffold the assembly
+
+Install [ntlink](https://github.com/bcgsc/ntLink) on Unity.
+
+```
+cd /work/pi_hputnam_uri_edu/conda/envs
+module load conda/latest # need to load before making any conda envs
+conda config --add channels bioconda
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+conda create --prefix /work/pi_hputnam_uri_edu/conda/envs/ntlink ntlink
+conda activate /work/pi_hputnam_uri_edu/conda/envs/ntlink 
+```
 
 
-
-
-
-
-
-
-
-5. Hifiasm to assembly
-6. ntlinks to further scaffold the assembly
 7. Ragout (Reference-Assisted Genome Ordering UTility) is a tool for chromosome-level scaffolding using multiple references. - Consider running this 
 6. Quast to report assembly stats
 7. BUSCO to report assembly stats
