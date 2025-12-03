@@ -693,7 +693,88 @@ echo "Assembly with hifiasm complete!" $(date)
 conda deactivate
 ```
 
-Submitted batch job 49403559. This will take a few days to run. 
+Submitted batch job 49403559. Assembly took ~24 hours to run. The primary assembly is `Ptua_hifiasm.p_ctg.gfa` and the alternate assembly is `Ptua_hifiasm.a_ctg.gfa`. See hifiasm support [documents](https://gensoft.pasteur.fr/docs/hifiasm/0.16.1/interpreting-output.html) for information about the output files. Convert output files from gfa to fa. 
+
+```
+awk '/^S/{print ">"$2"\n"$3}' Ptua_hifiasm.p_ctg.gfa | fold > Ptua_hifiasm.p_ctg.fa
+grep -c ">" Ptua_hifiasm.p_ctg.fa
+2117
+
+awk '/^S/{print ">"$2"\n"$3}' Ptua_hifiasm.a_ctg.gfa | fold > Ptua_hifiasm.a_ctg.fa
+grep -c ">" Ptua_hifiasm.a_ctg.fa
+6959
+```
+
+The primary assembly is quite large. Might be worth it to rerun hifiasm with the -s flag set to 0.3 and the `–hom-cov` to 150 based on the log file. Usually, hifiasm infers automatically by default but it would be good to put these in. 
+
+Run Quast and Busco on initial assembly. 
+
+`nano quast_hifiasm.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 --ntasks-per-node=1
+#SBATCH --partition=cpu,uri-cpu
+#SBATCH --no-requeue
+#SBATCH --mem=25GB
+#SBATCH -t 24:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL #email you when job starts, stops and/or fails
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
+
+module load uri/main
+module load QUAST/5.0.2-foss-2021b
+
+echo "Begin quast of primary and alternate assemblies (-s 0.55)" $(date)
+
+cd /work/pi_hputnam_uri_edu/Ptua_genome
+
+quast --eukaryote \
+Ptua_hifiasm.p_ctg.fa \
+Ptua_hifiasm.a_ctg.fa \
+/work/pi_hputnam_uri_edu/HI_Genomes/Pmeandrina/Pocillopora_meandrina_HIv1.assembly.fasta \
+/work/pi_hputnam_uri_edu/HI_Genomes/PacutaV2/Pocillopora_acuta_HIv2.assembly.fasta \
+-o /work/pi_hputnam_uri_edu/Ptua_genome/quast
+
+echo "Quast complete" $(date)
+```
+
+Submitted batch job 49468427. The assembly doesn't look great. The N50 is low (379661 bp) and the largest contig is only 2017673 bp. In comparison, the Pmea genome has an N50 of 10024633 bp and the largest contig is 21651136. 
+
+`nano busco_hifiasm.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 --ntasks-per-node=1
+#SBATCH --partition=uri-cpu
+#SBATCH --no-requeue
+#SBATCH --mem=25GB
+#SBATCH -t 24:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL #email you when job starts, stops and/or fails
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
+
+module load conda/latest 
+
+conda activate /work/pi_hputnam_uri_edu/conda/envs/env-busco/
+
+cd /work/pi_hputnam_uri_edu/Ptua_genome
+
+echo "Begin busco of primary assembly (-s 0.55)" $(date)
+
+busco -i Ptua_hifiasm.p_ctg.fa -l /work/pi_hputnam_uri_edu/lineages/metazoa_odb12 -o /work/pi_hputnam_uri_edu/Ptua_genome/busco -m genome
+
+echo "Busco complete" $(date)
+```
+
+Submitted batch job 49471519
+
+Run iterations of hifiasm with `-s` set to 0.35, 0.45, 0.55, and 0.65 and `–-hom-cov 150`. Submitted batch jobs 49488122, 49488399, 49488404, and 49488406, respectively. 
+
 
 ## ntlink to further scaffold the assembly
 
