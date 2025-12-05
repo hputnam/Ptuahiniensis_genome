@@ -771,9 +771,115 @@ busco -i Ptua_hifiasm.p_ctg.fa -l /work/pi_hputnam_uri_edu/lineages/metazoa_odb1
 echo "Busco complete" $(date)
 ```
 
-Submitted batch job 49471519
+Submitted batch job 49471519. Busco failed, need to rerun. 
 
 Run iterations of hifiasm with `-s` set to 0.35, 0.45, 0.55, and 0.65 and `–-hom-cov 150`. Submitted batch jobs 49488122, 49488399, 49488404, and 49488406, respectively. 
+
+Convert output files from gfa to fa. 
+
+```
+# s -0.35
+awk '/^S/{print ">"$2"\n"$3}' Ptua_hifiasm_s35.p_ctg.gfa | fold > Ptua_hifiasm_s35.p_ctg.fa
+awk '/^S/{print ">"$2"\n"$3}' Ptua_hifiasm_s35.a_ctg.gfa | fold > Ptua_hifiasm_s35.a_ctg.fa
+
+# s -0.45
+awk '/^S/{print ">"$2"\n"$3}' Ptua_hifiasm_s45.p_ctg.gfa | fold > Ptua_hifiasm_s45.p_ctg.fa
+awk '/^S/{print ">"$2"\n"$3}' Ptua_hifiasm_s45.a_ctg.gfa | fold > Ptua_hifiasm_s45.a_ctg.fa
+
+# s -0.55
+awk '/^S/{print ">"$2"\n"$3}' Ptua_hifiasm_s55.p_ctg.gfa | fold > Ptua_hifiasm_s55.p_ctg.fa
+awk '/^S/{print ">"$2"\n"$3}' Ptua_hifiasm_s55.a_ctg.gfa | fold > Ptua_hifiasm_s55.a_ctg.fa
+
+# s -0.65
+awk '/^S/{print ">"$2"\n"$3}' Ptua_hifiasm_s65.p_ctg.gfa | fold > Ptua_hifiasm_s65.p_ctg.fa
+awk '/^S/{print ">"$2"\n"$3}' Ptua_hifiasm_s65.a_ctg.gfa | fold > Ptua_hifiasm_s65.a_ctg.fa
+```
+
+Run busco and quast on these assemblies. 
+
+`nano quast_hifiasm.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 --ntasks-per-node=1
+#SBATCH --partition=gpu
+#SBATCH -G 1
+#SBATCH --no-requeue
+#SBATCH --mem=25GB
+#SBATCH -t 24:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL #email you when job starts, stops and/or fails
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
+
+module load uri/main
+module load QUAST/5.0.2-foss-2021b
+
+echo "Begin quast of primary and alternate assembly iterations" $(date)
+
+cd /work/pi_hputnam_uri_edu/Ptua_genome
+
+quast --eukaryote \
+Ptua_hifiasm_s35.p_ctg.fa \
+Ptua_hifiasm_s45.p_ctg.fa \
+Ptua_hifiasm_s55.p_ctg.fa \
+Ptua_hifiasm_s65.p_ctg.fa \
+/work/pi_hputnam_uri_edu/HI_Genomes/Pmeandrina/Pocillopora_meandrina_HIv1.assembly.fasta \
+/work/pi_hputnam_uri_edu/HI_Genomes/PacutaV2/Pocillopora_acuta_HIv2.assembly.fasta \
+-o /work/pi_hputnam_uri_edu/Ptua_genome/quast
+
+echo "Quast complete" $(date)
+```
+
+Submitted batch job 49526093
+
+Outline of busco script for all assembly iterations: `nano busco_hifiasm_s35.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 --ntasks-per-node=1
+#SBATCH --partition=gpu
+#SBATCH -G 1
+#SBATCH --no-requeue
+#SBATCH --mem=100GB
+#SBATCH -t 47:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL #email you when job starts, stops and/or fails
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
+
+echo "Running busco on Ptua assembly with -s 0.35" $(date)
+echo "Creating output directory: Ptua_hifiasm_s35_busco" $(date)
+mkdir -p /work/pi_hputnam_uri_edu/Ptua_genome/Ptua_hifiasm_s35_busco/
+export PATH="/work/pi_hputnam_uri_edu/conda/envs/env-busco/bin:$PATH"
+
+module load conda/latest 
+conda activate /work/pi_hputnam_uri_edu/conda/envs/env-busco
+module load uri/main HMMER/3.4-gompi-2023a
+python -c "import shutil; print('Resolved hmmsearch path:', shutil.which('hmmsearch'))"
+
+echo "START Ptua_hifiasm_s35" $(date)
+
+#set query file
+query="/work/pi_hputnam_uri_edu/Ptua_genome/Ptua_hifiasm_s35.p_ctg.fa"
+
+#configure BUSCO ini file
+busco --config /work/pi_hputnam_uri_edu/conda/envs/env-busco/myconfig.ini \
+  -f -c 15 \
+  -i "${query}" \
+  -l metazoa_odb10 \
+  -o Ptua_hifiasm_s35_busco_output \
+  -m genome \
+  --download_path /work/pi_hputnam_uri_edu/lineages
+
+echo "STOP Ptua_hifiasm_s35" $(date)
+```
+
+Submitted batch job 49525836
+
+
 
 
 ## ntlink to further scaffold the assembly
