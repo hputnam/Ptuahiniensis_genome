@@ -877,10 +877,26 @@ busco --config /work/pi_hputnam_uri_edu/conda/envs/env-busco/myconfig.ini \
 echo "STOP Ptua_hifiasm_s35" $(date)
 ```
 
-Submitted batch job 49525836
+Submitted batch job 49525836. 
 
+Here are the busco results for `Ptua_hifiasm_s35`: 
 
-
+```
+C:96.5%[S:92.0%,D:4.5%],F:0.9%,M:2.5%,n:954,E:4.0%
+	921	Complete BUSCOs (C)	(of which 37 contain internal stop codons)
+	878	Complete and single-copy BUSCOs (S)
+	43	Complete and duplicated BUSCOs (D)
+	9	Fragmented BUSCOs (F)			   
+	24	Missing BUSCOs (M)			   
+	954	Total BUSCO groups searched
+Assembly Statistics:
+	1881	Number of scaffolds
+	1881	Number of contigs
+	346892374	Total length
+	0.000%	Percent gaps
+	411 KB	Scaffold N50
+	411 KB	Contigs N50
+```
 
 ## ntlink to further scaffold the assembly
 
@@ -896,8 +912,46 @@ conda create --prefix /work/pi_hputnam_uri_edu/conda/envs/ntlink ntlink
 conda activate /work/pi_hputnam_uri_edu/conda/envs/ntlink 
 ```
 
+Move forward with the s55 assembly(`Ptua_hifiasm_s55.p_ctg.fa`). Working in scratch directory now. 
 
-7. Ragout (Reference-Assisted Genome Ordering UTility) is a tool for chromosome-level scaffolding using multiple references. - Consider running this 
+Run ntlinks to further scaffold assembly. `nano ntlinks.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 --ntasks-per-node=1
+#SBATCH --partition=gpu
+#SBATCH -G 1
+#SBATCH --no-requeue
+#SBATCH --mem=25GB
+#SBATCH -t 48:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL #email you when job starts, stops and/or fails
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
+
+module load uri/main
+module load conda/latest
+conda activate /work/pi_hputnam_uri_edu/conda/envs/ntlink 
+
+echo "Starting scaffolding of hifiasm primary assembly with ntlinks (rounds = 5)" $(date)
+
+cd /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+ntLink_rounds run_rounds_gaps \
+t=36 \
+g=100 \
+rounds=5 \
+gap_fill \
+target=Ptua_hifiasm_s55.p_ctg.fa \
+reads=/work/pi_hputnam_uri_edu/Ptua_genome/Ptua_hifi_filtered_reads.fasta \
+out_prefix=ptua_ntlink_s55
+
+echo "Scaffolding of hifiasm primary assembly with ntlinks (rounds = 5) complete!" $(date)
+```
+
+Submitted batch job 53659282
+
 6. Quast to report assembly stats
 7. BUSCO to report assembly stats
 8. RepeatModeler for structural annotation
