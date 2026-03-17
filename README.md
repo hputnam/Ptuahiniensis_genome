@@ -952,6 +952,183 @@ echo "Scaffolding of hifiasm primary assembly with ntlinks (rounds = 5) complete
 
 Submitted batch job 53659282
 
+## RepeatModeler 
+
+Install [RepeatModeler](https://github.com/Dfam-consortium/RepeatModeler) on Unity.
+
+```
+cd /work/pi_hputnam_uri_edu/conda/envs
+module load conda/latest # need to load before making any conda envs
+conda config --add channels bioconda
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+conda create --prefix /work/pi_hputnam_uri_edu/conda/envs/repeatmodeler repeatmodeler
+conda activate /work/pi_hputnam_uri_edu/conda/envs/repeatmodeler 
+```
+
+Run repeatmodeler to identify genomic repeats. `nano repeatmodeler.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 --ntasks-per-node=8
+#SBATCH --partition=uri-cpu
+#SBATCH --no-requeue
+#SBATCH --mem=100GB
+#SBATCH -t 5-00:00:00
+#SBATCH -q long
+#SBATCH --mail-type=BEGIN,END,FAIL #email you when job starts, stops and/or fails
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
+
+module load conda/latest 
+conda activate /work/pi_hputnam_uri_edu/conda/envs/repeatmodeler 
+
+cd /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+echo "Building repeatmodeler database" $(date)
+
+BuildDatabase -engine ncbi -name ptua_repeat_db Ptua_hifiasm_s55.p_ctg.fa.k32.w100.z1000.ntLink.5rounds.fa
+
+echo "Db build complete, run repeatmodeler" $(date)
+
+RepeatModeler -database ptua_repeat_db -engine ncbi -LTRStruct -threads 15
+
+echo "Repeatmodeler complete" $(date)
+
+conda deactivate
+```
+
+Submitted batch job 53679982. 
+
+Count number of families 
+
+```
+grep -c ">" ptua_repeat_db-families.fa
+2235
+```
+
+Count how many classifications each family has 
+
+```
+grep ">" ptua_repeat_db-families.fa | cut -
+d'#' -f2 | cut -d' ' -f1 | sort | uniq -c | sort -nr
+   1631 Unknown
+     74 LTR/Gypsy
+     71 LINE/L2
+     60 LINE/Penelope
+     57 LTR/Unknown
+     39 LTR/Pao
+     35 DNA/Sola-3
+     28 RC/Helitron
+     18 DNA/Crypton-A
+     17 LINE/Rex-Babar
+     16 LINE/CR1
+     16 DNA/PIF-Harbinger
+     15 LTR/DIRS
+     15 LINE/RTE-BovB
+     14 tRNA
+     14 DNA/TcMar-Tc2
+     11 DNA/Maverick
+     10 LINE/L1-Tx1
+      9 DNA/PIF-ISL2EU
+      6 LTR/Copia
+      5 SINE/MIR
+      5 DNA
+      4 snRNA
+      4 LTR/Ngaro
+      4 LINE/CRE
+      4 DNA/CMC-Chapaev
+      3 LINE
+      3 DNA/MULE-NOF
+      3 DNA/Merlin
+      3 DNA/Kolobok-T2
+      3 DNA/Kolobok-Hydra
+      3 DNA/IS3EU
+      3 DNA/hAT-Tip100
+      3 DNA/hAT-Ac
+      3 DNA/CMC-EnSpm
+      2 SINE/tRNA-V
+      2 rRNA
+      2 LINE/L1
+      2 DNA/TcMar-Tc1
+      2 DNA/TcMar-ISRm11
+      2 DNA/PiggyBac
+      2 DNA/MULE-MuDR
+      1 SINE/5S-Deu-L2
+      1 LTR
+      1 LINE/CR1-Zenon
+      1 DNA/TcMar-Tigger
+      1 DNA/MULE-F
+      1 DNA/hAT-hAT5
+      1 DNA/hAT-hAT1
+      1 DNA/Dada
+      1 DNA/Crypton-V
+      1 DNA/Academ-H
+      1 DNA/Academ-2
+      1 DNA/Academ-1
+```
+
+## RepeatMasker 
+
+Install [RepeatModeler](https://www.repeatmasker.org/) on Unity.
+
+```
+cd /work/pi_hputnam_uri_edu/conda/envs
+module load conda/latest # need to load before making any conda envs
+conda config --add channels bioconda
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+conda create --prefix /work/pi_hputnam_uri_edu/conda/envs/repeatmasker repeatmasker
+conda activate /work/pi_hputnam_uri_edu/conda/envs/repeatmasker 
+```
+
+Run repeatmodeler to identify genomic repeats. `nano repeatmasker.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 --ntasks-per-node=8
+#SBATCH --partition=uri-cpu
+#SBATCH --no-requeue
+#SBATCH --mem=100GB
+#SBATCH -t 5-00:00:00
+#SBATCH -q long
+#SBATCH --mail-type=BEGIN,END,FAIL #email you when job starts, stops and/or fails
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
+
+module load conda/latest 
+conda activate /work/pi_hputnam_uri_edu/conda/envs/repeatmodeler 
+
+cd /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+echo "Run repeatmasker using the output from repeatmodeler" $(date)
+
+RepeatMasker \
+	-lib ptua_repeat_db-families.fa \
+	-engine ncbi \
+	-parallel 20 \
+	-gff -xsmall -s \
+	-poly \
+	-dir ptua_softmasked \
+	-a \
+	Ptua_hifiasm_s55.p_ctg.fa.k32.w100.z1000.ntLink.5rounds.fa
+
+echo "Repeatmasker complete" $(date)
+```
+
+Submitted batch job 53707479
+
+
+this will be important for functional annotation: https://unityhpc.org/documentation/datasets/ 
+
+examples of recent coral genome preprint releases: https://www.biorxiv.org/content/10.64898/2026.02.26.708201v1.full.pdf (https://github.com/SequAna-Ukon/Porites_harrisoni_genome/blob/main/07.functional_annotation.sh; https://www.ncbi.nlm.nih.gov/datasets/genome/GCA_040938025.2/)
+
+
+
 6. Quast to report assembly stats
 7. BUSCO to report assembly stats
 8. RepeatModeler for structural annotation
