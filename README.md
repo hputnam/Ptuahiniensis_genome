@@ -1127,12 +1127,104 @@ this will be important for functional annotation: https://unityhpc.org/documenta
 
 examples of recent coral genome preprint releases: https://www.biorxiv.org/content/10.64898/2026.02.26.708201v1.full.pdf (https://github.com/SequAna-Ukon/Porites_harrisoni_genome/blob/main/07.functional_annotation.sh; https://www.ncbi.nlm.nih.gov/datasets/genome/GCA_040938025.2/)
 
+## Quast on assembled and masked genome 
+
+Run Quast on the assembled and masked genome, as well as other published Pocillopora genomes. `nano quast_assembled.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 --ntasks-per-node=1
+#SBATCH --partition=uri-cpu
+#SBATCH --no-requeue
+#SBATCH --mem=25GB
+#SBATCH -t 24:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL #email you when job starts, stops and/or fails
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
+
+module load uri/main
+module load QUAST/5.0.2-foss-2021b
+
+echo "Begin quast of assembled and masked genome" $(date)
+
+quast --eukaryote \
+/scratch4/workspace/jillashey_uri_edu-Ptua_genome/ptua_softmasked/Ptua_hifiasm_s55.p_ctg.fa.k32.w100.z1000.ntLink.5rounds.fa.masked \
+/scratch4/workspace/jillashey_uri_edu-Ptua_genome/Pver_genome_assembly_v1.0.fasta \
+/work/pi_hputnam_uri_edu/HI_Genomes/Pmeandrina/Pocillopora_meandrina_HIv1.assembly.fasta \
+/work/pi_hputnam_uri_edu/HI_Genomes/PacutaV2/Pocillopora_acuta_HIv2.assembly.fasta \
+-o /work/pi_hputnam_uri_edu/Ptua_genome/quast_assembled
+
+echo "Quast complete" $(date)
+```
+
+Submitted batch job 53726073
+
+## Busco on assembled and masked genome 
+
+Run busco on assembled and masked genome. `nano busco_assembled.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 --ntasks-per-node=1
+#SBATCH --partition=gpu
+#SBATCH -G 1
+#SBATCH --no-requeue
+#SBATCH --mem=100GB
+#SBATCH -t 47:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL #email you when job starts, stops and/or fails
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
+
+echo "Running busco on Ptua assembled and masked genome" $(date)
+echo "Creating output directory: Ptua_genome_busco" $(date)
+mkdir -p /work/pi_hputnam_uri_edu/Ptua_genome/Ptua_genome_busco/
+export PATH="/work/pi_hputnam_uri_edu/conda/envs/env-busco/bin:$PATH"
+
+module load conda/latest 
+conda activate /work/pi_hputnam_uri_edu/conda/envs/env-busco
+module load uri/main HMMER/3.4-gompi-2023a
+python -c "import shutil; print('Resolved hmmsearch path:', shutil.which('hmmsearch'))"
+
+echo "START busco on genome" $(date)
+
+#set query file
+query="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/ptua_softmasked/Ptua_hifiasm_s55.p_ctg.fa.k32.w100.z1000.ntLink.5rounds.fa.masked"
+
+busco -f -c 15 \
+  -i "${query}" \
+  -l metazoa_odb10 \
+  -o Ptua_genome_busco \
+  -m genome \
+  --download_path /work/pi_hputnam_uri_edu/lineages
+
+echo "Busco complete" $(date)
+```
+
+Submitted batch job 53752937
+
+Busco results: 
+
+```
+    -------------------------------------------------------------------------------------------
+    |Results from dataset metazoa_odb10                                                        |
+    -------------------------------------------------------------------------------------------
+    |C:96.8%[S:91.5%,D:5.2%],F:0.8%,M:2.4%,n:954,E:4.6%                                        |
+    |923    Complete BUSCOs (C)    (of which 42 contain internal stop codons)                  |
+    |873    Complete and single-copy BUSCOs (S)                                                |
+    |50    Complete and duplicated BUSCOs (D)                                                  |
+    |8    Fragmented BUSCOs (F)                                                                |
+    |23    Missing BUSCOs (M)                                                                  |
+    |954    Total BUSCO groups searched                                                        |
+    -------------------------------------------------------------------------------------------
+```
+
+Start the struc and func annotations
 
 
-6. Quast to report assembly stats
-7. BUSCO to report assembly stats
-8. RepeatModeler for structural annotation
-9. RepeatMasker for structural annotation
 10. funannotate for structural annotation and functional annotation
 11. Interproscan for functional annotation
 12. EggNOG for functional annotation

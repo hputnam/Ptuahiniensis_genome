@@ -1,0 +1,4 @@
+# Related mitogenome is 17415 bp long and has 18 genes
+contig_id	frameshifts_found	annotation_file	length(bp)	number_of_genes	was_circular
+final_mitogenome	ND5;COX1	final_mitogenome.gb	16884	22	False
+ptg000010l	ND5;COX1	final_mitogenome.gb	16884	22	False

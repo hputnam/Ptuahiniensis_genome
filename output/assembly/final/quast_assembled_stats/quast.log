@@ -1,0 +1,77 @@
+/modules/uri_apps/software/QUAST/5.0.2-foss-2021b/bin/quast --eukaryote /scratch4/workspace/jillashey_uri_edu-Ptua_genome/ptua_softmasked/Ptua_hifiasm_s55.p_ctg.fa.k32.w100.z1000.ntLink.5rounds.fa.masked /scratch4/workspace/jillashey_uri_edu-Ptua_genome/Pver_genome_assembly_v1.0.fasta /work/pi_hputnam_uri_edu/HI_Genomes/Pmeandrina/Pocillopora_meandrina_HIv1.assembly.fasta /work/pi_hputnam_uri_edu/HI_Genomes/PacutaV2/Pocillopora_acuta_HIv2.assembly.fasta -o /work/pi_hputnam_uri_edu/Ptua_genome/quast_assembled
+
+Version: 5.0.2
+
+System information:
+  OS: Linux-6.8.0-94-generic-x86_64-with-glibc2.39 (linux_64)
+  Python version: 3.9.6
+  CPUs number: 64
+
+Started: 2026-03-18 20:49:38
+
+Logging to /work/pi_hputnam_uri_edu/Ptua_genome/quast_assembled/quast.log
+NOTICE: Maximum number of threads is set to 16 (use --threads option to set it manually)
+
+CWD: /work/pi_hputnam_uri_edu/Ptua_genome
+Main parameters: 
+  MODE: default, threads: 16, eukaryotic: true, minimum contig length: 500, minimum alignment length: 65, \
+  ambiguity: one, threshold for extensive misassembly size: 1000
+
+Contigs:
+  Pre-processing...
+  1  /scratch4/workspace/jillashey_uri_edu-Ptua_genome/ptua_softmasked/Ptua_hifiasm_s55.p_ctg.fa.k32.w100.z1000.ntLink.5rounds.fa.masked ==> Ptua_hifiasm_s55.p_ctg.fa.k32.w100.z1000.ntLink.5rounds.fa.masked
+  2  /scratch4/workspace/jillashey_uri_edu-Ptua_genome/Pver_genome_assembly_v1.0.fasta ==> Pver_genome_assembly_v1.0
+  3  /work/pi_hputnam_uri_edu/HI_Genomes/Pmeandrina/Pocillopora_meandrina_HIv1.assembly.fasta ==> Pocillopora_meandrina_HIv1.assembly
+  4  /work/pi_hputnam_uri_edu/HI_Genomes/PacutaV2/Pocillopora_acuta_HIv2.assembly.fasta ==> Pocillopora_acuta_HIv2.assembly
+
+2026-03-18 20:50:25
+Running Basic statistics processor...
+  Contig files: 
+    1  Ptua_hifiasm_s55.p_ctg.fa.k32.w100.z1000.ntLink.5rounds.fa.masked
+    2  Pver_genome_assembly_v1.0
+    3  Pocillopora_meandrina_HIv1.assembly
+    4  Pocillopora_acuta_HIv2.assembly
+  Calculating N50 and L50...
+    1  Ptua_hifiasm_s55.p_ctg.fa.k32.w100.z1000.ntLink.5rounds.fa.masked, N50 = 739931, L50 = 141, Total length = 360397912, GC % = 38.07, # N's per 100 kbp =  0.11
+    2  Pver_genome_assembly_v1.0, N50 = 333696, L50 = 326, Total length = 380505698, GC % = 38.09, # N's per 100 kbp =  134.04
+    3  Pocillopora_meandrina_HIv1.assembly, N50 = 10024633, L50 = 13, Total length = 376579914, GC % = 38.03, # N's per 100 kbp =  0.00
+    4  Pocillopora_acuta_HIv2.assembly, N50 = 5167277, L50 = 24, Total length = 408287534, GC % = 38.11, # N's per 100 kbp =  0.00
+  Drawing Nx plot...
+    saved to /work/pi_hputnam_uri_edu/Ptua_genome/quast_assembled/basic_stats/Nx_plot.pdf
+  Drawing cumulative plot...
+    saved to /work/pi_hputnam_uri_edu/Ptua_genome/quast_assembled/basic_stats/cumulative_plot.pdf
+  Drawing GC content plot...
+    saved to /work/pi_hputnam_uri_edu/Ptua_genome/quast_assembled/basic_stats/GC_content_plot.pdf
+  Drawing Ptua_hifiasm_s55.p_ctg.fa.k32.w100.z1000.ntLink.5rounds.fa.masked GC content plot...
+    saved to /work/pi_hputnam_uri_edu/Ptua_genome/quast_assembled/basic_stats/Ptua_hifiasm_s55.p_ctg.fa.k32.w100.z1000.ntLink.5rounds.fa.masked_GC_content_plot.pdf
+  Drawing Pver_genome_assembly_v1.0 GC content plot...
+    saved to /work/pi_hputnam_uri_edu/Ptua_genome/quast_assembled/basic_stats/Pver_genome_assembly_v1.0_GC_content_plot.pdf
+  Drawing Pocillopora_meandrina_HIv1.assembly GC content plot...
+    saved to /work/pi_hputnam_uri_edu/Ptua_genome/quast_assembled/basic_stats/Pocillopora_meandrina_HIv1.assembly_GC_content_plot.pdf
+  Drawing Pocillopora_acuta_HIv2.assembly GC content plot...
+    saved to /work/pi_hputnam_uri_edu/Ptua_genome/quast_assembled/basic_stats/Pocillopora_acuta_HIv2.assembly_GC_content_plot.pdf
+Done.
+
+NOTICE: Genes are not predicted by default. Use --gene-finding or --glimmer option to enable it.
+
+2026-03-18 20:51:45
+Creating large visual summaries...
+This may take a while: press Ctrl-C to skip this step..
+  1 of 2: Creating Icarus viewers...
+  2 of 2: Creating PDF with all tables and plots...
+Done
+
+2026-03-18 20:51:59
+RESULTS:
+  Text versions of total report are saved to /work/pi_hputnam_uri_edu/Ptua_genome/quast_assembled/report.txt, report.tsv, and report.tex
+  Text versions of transposed total report are saved to /work/pi_hputnam_uri_edu/Ptua_genome/quast_assembled/transposed_report.txt, transposed_report.tsv, and transposed_report.tex
+  HTML version (interactive tables and plots) is saved to /work/pi_hputnam_uri_edu/Ptua_genome/quast_assembled/report.html
+  PDF version (tables and plots) is saved to /work/pi_hputnam_uri_edu/Ptua_genome/quast_assembled/report.pdf
+  Icarus (contig browser) is saved to /work/pi_hputnam_uri_edu/Ptua_genome/quast_assembled/icarus.html
+  Log is saved to /work/pi_hputnam_uri_edu/Ptua_genome/quast_assembled/quast.log
+
+Finished: 2026-03-18 20:51:59
+Elapsed time: 0:02:20.986915
+NOTICEs: 2; WARNINGs: 0; non-fatal ERRORs: 0
+
+Thank you for using QUAST!
