@@ -1511,6 +1511,145 @@ echo "BRAKER3 pipeline completed at:" $(date)
 Submitted batch job 61525956
 
 
+I SHOULD HAVE RENAMED THE CONTIGS HERE UGHHHHHHHHHHHHHHH--should i stop it??? idk gonna let it run and see how long it takes. but would be good to rename the contigs at this step so that the structural annotation can have that info
+
+
+```
+got this error: 
+ERROR in file /opt/BRAKER/scripts/braker.pl at line 5578
+Failed to execute: /usr/bin/perl /opt/ETP/bin/gmetp.pl --cfg /scratch4/workspace/jillashey_uri_edu-Ptua_genome/braker3_output/GeneMark-ETP/etp_config.yaml --workdir /scratch4/workspace/jillashey_uri_edu-Ptua_genome/braker3_output/GeneMark-ETP --bam /scratch4/workspace/jillashey_uri_edu-Ptua_genome/braker3_output/GeneMark-ETP/etp_data/ --cores 24 --softmask  1>/scratch4/workspace/jillashey_uri_edu-Ptua_genome/braker3_output/errors/GeneMark-ETP.stdout 2>/scratch4/workspace/jillashey_uri_edu-Ptua_genome/braker3_output/errors/GeneMark-ETP.stderr
+Failed to execute: /usr/bin/perl /opt/ETP/bin/gmetp.pl --cfg /scratch4/workspace/jillashey_uri_edu-Ptua_genome/braker3_output/GeneMark-ETP/etp_config.yaml --workdir /scratch4/workspace/jillashey_uri_edu-Ptua_genome/braker3_output/GeneMark-ETP --bam /scratch4/workspace/jillashey_uri_edu-Ptua_genome/braker3_output/GeneMark-ETP/etp_data/ --cores 24 --softmask  1>/scratch4/workspace/jillashey_uri_edu-Ptua_genome/braker3_output/errors/GeneMark-ETP.stdout 2>/scratch4/workspace/jillashey_uri_edu-Ptua_genome/braker3_output/errors/GeneMark-ETP.stderr
+The most common problem is that GeneMark-ETP didn't receive enough evidence from the input data, in this case, see errors/GeneMark-ETP.stderr!
+
+# head from GeneMark-ETP.stderr
+FASTA index file /scratch4/workspace/jillashey_uri_edu-Ptua_genome/braker3_output/GeneMark-ETP/data/genome.softmasked.fasta.fai created.
+Warning: couldn't find fasta record for 'Pocillopora_meandrina_HIv1___Sc0000000'!
+Error: no genomic sequence available (check -g option!).
+WARNING: 'Pocillopora_meandrina_HIv1___Sc0000000' does not match any sequence in the fasta file. Maybe the two files do not belong together.
+WARNING: 'Pocillopora_meandrina_HIv1___Sc0000034' does not match any sequence in the fasta file. Maybe the two files do not belong together.
+WARNING: 'Pocillopora_meandrina_HIv1___Sc0000013' does not match any sequence in the fasta file. Maybe the two files do not belong together.
+WARNING: 'Pocillopora_meandrina_HIv1___Sc0000008' does not match any sequence in the fasta file. Maybe the two files do not belong together.
+
+# head from GeneMark-ETP.stdout
+warning, stop codon found in protein sequence, record Pver_g139.t2
+warning, stop codon found in protein sequence, record Pver_g216.t1
+warning, stop codon found in protein sequence, record Pver_g281.t2
+warning, stop codon found in protein sequence, record Pver_g450.t1
+warning, stop codon found in protein sequence, record Pver_g596.t1
+```
+
+ahhhh i need to align the fastq files with the Ptua genome duh...okay do that tomorrow
+
+Download the trimmed fastq files for the POC samples 
+
+Download the aligned bam files for the POC data only form e5 project. 
+
+```
+wget --mirror --page-requisites --no-parent --no-host-directories --cut-dirs=5 \
+     --accept "fastq.gz,fastq,fq.gz,fq" \
+     https://gannet.fish.washington.edu/gitrepos/urol-e5/timeseries_molecular/F-Ptua/output/01.00-F-Ptua-RNAseq-trimming-fastp-FastQC-MultiQC/
+```
+
+Rename the soft-masked genome file and the chromosome names 
+
+```
+# Define your file variables
+OLD_GENOME="Ptua_hifiasm_s55.p_ctg.fa.k32.w100.z1000.ntLink.5rounds.fa.masked"
+NEW_GENOME="Pocillopora_tuahiniensis_genome_v1.0.fasta"
+MAP_FILE="scaffold_name_map.txt"
+
+# Run AWK to rename the headers and generate the mapping file simultaneously
+awk '
+BEGIN { count = 1 } 
+/^>/ { 
+    old_name = substr($1, 2); 
+    new_name = "Pocillopora_tuahiniensis_scaffold" count; 
+    print old_name "\t" new_name > "'"$MAP_FILE"'"; 
+    print ">" new_name; 
+    count++; 
+    next 
+} 
+{ print }
+' "$OLD_GENOME" > "$NEW_GENOME"
+```
+
+Align the fastq files to the Ptua genome with hisat2. `nano hisat2.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=24         
+#SBATCH --partition=gpu
+#SBATCH -G 1
+#SBATCH --no-requeue
+#SBATCH --mem=100GB                
+#SBATCH -t 48:00:00                
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+module purge
+
+# Load modules
+module load uri/main
+module load all/HISAT2/2.2.1-gompi-2022a
+module load all/SAMtools/1.18-GCC-12.3.0
+
+GENOME="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/ptua_softmasked/Pocillopora_tuahiniensis_genome_v1.0.fasta"
+INDEX="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/ptua_softmasked/Ptua_ref"
+FASTQ_DIR="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/rna_fastq"
+BAM_OUT_DIR="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/rna_bams"
+
+# Ensure output directory exists
+mkdir -p ${BAM_OUT_DIR}
+
+echo "Building genome reference:" $(date)
+# Build HISAT2 index using your variables
+hisat2-build -f ${GENOME} ${INDEX}
+echo "Reference genome indexed. Starting alignment:" $(date)
+
+# Move into the fastq directory to easily process files
+cd ${FASTQ_DIR}
+
+# Loop through all Forward (R1) files
+for r1_file in *_R1_*.fq.gz; do    
+    sample_name=$(echo "${r1_file}" | awk -F "_R1_" '{print $1}')    
+    r2_file=$(echo "${r1_file}" | sed 's/_R1_/_R2_/')
+    
+    echo "Processing sample: ${sample_name} at $(date)"    
+    hisat2 -p 24 \
+           --dta \
+           -x ${INDEX} \
+           -1 ${r1_file} \
+           -2 ${r2_file} \
+           --summary-file ${BAM_OUT_DIR}/${sample_name}_align_stats.txt \
+           -S ${BAM_OUT_DIR}/${sample_name}.sam
+    echo "Sorting and converting ${sample_name} to BAM..."
+    samtools sort -@ 24 \
+                  -o ${BAM_OUT_DIR}/${sample_name}.sorted.bam \
+                  ${BAM_OUT_DIR}/${sample_name}.sam    
+    samtools index ${BAM_OUT_DIR}/${sample_name}.sorted.bam
+    rm ${BAM_OUT_DIR}/${sample_name}.sam
+    echo "Sample ${sample_name} alignment complete!"
+    echo "----------------------------------------"
+done
+
+echo "All alignments complete at:" $(date)
+```
+
+Submitted batch job 61547423
+
+
+
+to do 
+
+- run braker 
+- run trnascan
+- reassign repeat scffold names in repeatmasker files based on new names 
+
 
 https://github.com/SequAna-Ukon/Porites_harrisoni_genome
 
