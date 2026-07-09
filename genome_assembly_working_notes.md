@@ -1711,6 +1711,8 @@ echo "BRAKER3 pipeline completed at:" $(date)
 
 Submitted batch job 61584655
 
+restart with sam pasa protein file too 
+
 
 
 
