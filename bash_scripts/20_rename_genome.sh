@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1        
+#SBATCH --partition=gpu
+#SBATCH -G 1
+#SBATCH --no-requeue
+#SBATCH --mem=50GB                
+#SBATCH -t 12:00:00                
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome/ptua_softmasked
+
+# Define your file variables
+OLD_GENOME="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/ptua_softmasked/Ptua_hifiasm_s55.p_ctg.fa.k32.w100.z1000.ntLink.5rounds.fa.masked"
+NEW_GENOME="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/ptua_softmasked/Pocillopora_tuahiniensis_genome_v1.0.fasta"
+MAP_FILE="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/ptua_softmasked/scaffold_name_map.txt"
+
+# Run AWK to rename the headers and generate the mapping file simultaneously
+awk '
+BEGIN { count = 1 } 
+/^>/ { 
+    old_name = substr($1, 2); 
+    new_name = "Pocillopora_tuahiniensis_scaffold" count; 
+    print old_name "\t" new_name > "'"$MAP_FILE"'"; 
+    print ">" new_name; 
+    count++; 
+    next 
+} 
+{ print }
+' "$OLD_GENOME" > "$NEW_GENOME"
