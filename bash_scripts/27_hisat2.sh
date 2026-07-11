@@ -43,6 +43,7 @@ for r1_file in *_R1_*.fq.gz; do
     r2_file=$(echo "${r1_file}" | sed 's/_R1_/_R2_/')
     echo "Processing sample: ${sample_name} at $(date)"
     hisat2 -p 24 \
+   	   --rna-strandness RF \
            --dta \
            -x ${INDEX} \
            -1 ${r1_file} \

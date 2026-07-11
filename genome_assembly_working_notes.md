@@ -1261,6 +1261,7 @@ wget http://pver.reefgenomics.org/download/Pver_proteins_names_v1.0.faa.gz
 wget http://cyanophora.rutgers.edu/Pocillopora_acuta/Pocillopora_acuta_HIv2.genes.pep.faa.gz
 wget http://cyanophora.rutgers.edu/Pocillopora_meandrina/Pocillopora_meandrina_HIv1.genes.pep.faa.gz
 wget https://bioinf.uni-greifswald.de/bioinf/partitioned_odb12/Metazoa.fa.gz
+wget https://gannet.fish.washington.edu/gitrepos/urol-e5/timeseries_molecular/F-Ptua/output/00.30-F-Ptua-transcriptome-assembly-Trinity/PASA/__all_transcripts.fasta.transdecoder_dir/longest_orfs.pep
 ```
 
 Submit the gunzip as a job since the files are huge. `nano unzip_proteins.sh`
@@ -1285,7 +1286,7 @@ echo "unzipping and catting protein files for braker" $(date)
 gunzip * 
 
 # Cat together 
-cat pdam_proteins.fasta Pver_proteins_names_v1.0.faa Pocillopora_acuta_HIv2.genes.pep.faa Pocillopora_meandrina_HIv1.genes.pep.faa Metazoa.fa > raw_proteins_for_braker.fa
+cat pdam_proteins.fasta Pver_proteins_names_v1.0.faa Pocillopora_acuta_HIv2.genes.pep.faa Pocillopora_meandrina_HIv1.genes.pep.faa Metazoa.fa longest_orfs.pep > raw_proteins_for_braker.fa
 
 # Strip out trailing stop codons (*)
 sed 's/\*$//g' raw_proteins_for_braker.fa > final_proteins_for_braker.fa
@@ -1293,7 +1294,7 @@ sed 's/\*$//g' raw_proteins_for_braker.fa > final_proteins_for_braker.fa
 echo "Complete" $(date)
 ```
 
-Submitted batch job 61523425
+Submitted batch job 61591524
 
 
 Download the aligned bam files for the POC data only form e5 project. 
@@ -1491,7 +1492,6 @@ echo "BRAKER3 pipeline completed at:" $(date)
 
 Submitted batch job 61525956
 
-
 I SHOULD HAVE RENAMED THE CONTIGS HERE UGHHHHHHHHHHHHHHH--should i stop it??? idk gonna let it run and see how long it takes. but would be good to rename the contigs at this step so that the structural annotation can have that info
 
 
@@ -1522,8 +1522,6 @@ warning, stop codon found in protein sequence, record Pver_g596.t1
 ahhhh i need to align the fastq files with the Ptua genome duh...okay do that tomorrow
 
 Download the trimmed fastq files for the POC samples 
-
-Download the aligned bam files for the POC data only form e5 project. 
 
 ```
 wget --mirror --page-requisites --no-parent --no-host-directories --cut-dirs=5 \
@@ -1617,6 +1615,7 @@ for r1_file in *_R1_*.fq.gz; do
     
     echo "Processing sample: ${sample_name} at $(date)"    
     hisat2 -p 24 \
+   			 --rna-strandness RF \
            --dta \
            -x ${INDEX} \
            -1 ${r1_file} \
@@ -1636,7 +1635,19 @@ done
 echo "All alignments complete at:" $(date)
 ```
 
-Submitted batch job 61547423
+Submitted batch job 61591491. Running stranded so I can annotate UTRs. 
+
+
+
+
+
+
+
+
+
+
+
+
 
 Now that's done, I can start braker again. `nano braker3.sh`
 
@@ -1697,13 +1708,14 @@ mkdir -p $APPTAINER_CACHEDIR
 # ----------------------------------------------------
 # Added --AUGUSTUS_CONFIG_PATH flag to explicitly force the pipeline to use your scratch copy
 apptainer exec -B /work,/scratch4,${MY_AUG_CONFIG}:/opt/Augustus/config ${SIF_IMAGE} \
-    braker.pl \
+braker.pl \
     --genome=${GENOME} \
     --bam=${BAM_FILES} \
     --prot_seq=${PROTEINS} \
     --workingdir=${OUT_DIR} \
     --threads=${SLURM_CPUS_PER_TASK} \
     --AUGUSTUS_CONFIG_PATH=${MY_AUG_CONFIG} \
+    --UTRs=on \
     --gff3
 
 echo "BRAKER3 pipeline completed at:" $(date)
@@ -1711,7 +1723,7 @@ echo "BRAKER3 pipeline completed at:" $(date)
 
 Submitted batch job 61584655
 
-restart with sam pasa protein file too 
+restart with sam pasa protein file too...maybe redo hisat2 with RF so stranded??
 
 
 
