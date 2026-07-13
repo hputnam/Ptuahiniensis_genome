@@ -125,7 +125,21 @@ Obtain the trimmed RNAseq reads for braker training.
 
 Align the trimmed RNAseq reads to the newly assembled Ptua genome with [Hisat2](https://github.com/DaehwanKimLab/hisat2). Braker needs BAM files that are aligned to the genome it is annotating to run. 
 
-### [`28_braker3.sh`](https://github.com/hputnam/Ptuahiniensis_genome/blob/main/bash_scripts/28_braker3.sh)
+### [`28_merge_bams.sh`](https://github.com/hputnam/Ptuahiniensis_genome/blob/main/bash_scripts/28_merge_bams.sh)
 
-Run [BRAKER3](https://github.com/Gaius-Augustus/BRAKER) with protein sequences and aligned BAM files from RNAseq reads as evidence. 
+Merge the aligned and sorted BAM files generated from hisat2 into one master BAM file with [samtools merge](https://www.htslib.org/). 
+
+### [`29_braker3.sh`](https://github.com/hputnam/Ptuahiniensis_genome/blob/main/bash_scripts/29_braker3.sh)
+
+Run [BRAKER3](https://github.com/Gaius-Augustus/BRAKER) with protein sequences and merged BAM file from RNAseq reads as evidence. 
+
+### [`30_trnascan.sh`](https://github.com/hputnam/Ptuahiniensis_genome/blob/main/bash_scripts/30_trnascan.sh)
+
+Identify tRNAs in the assembled genome with [tRNAscan-SE](https://github.com/UCSC-LoweLab/tRNAscan-SE). This can be run while braker3 is also running. 
+
+### [`31_barrnap.sh`](https://github.com/hputnam/Ptuahiniensis_genome/blob/main/bash_scripts/30_trnascan.sh)
+
+Identify rRNAs in the assembled genome with [barrnap](https://github.com/tseemann/barrnap). This can be run while braker3 is also running. 
+
+
 
