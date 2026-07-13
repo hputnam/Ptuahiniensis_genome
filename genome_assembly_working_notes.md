@@ -1637,17 +1637,41 @@ echo "All alignments complete at:" $(date)
 
 Submitted batch job 61591491. Running stranded so I can annotate UTRs. 
 
+Merge bam files. `merge_bams.sh`
 
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=24         
+#SBATCH --partition=gpu
+#SBATCH -G 1
+#SBATCH --no-requeue
+#SBATCH --mem=100GB                
+#SBATCH -t 48:00:00                
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
 
+module purge
 
+# Load modules
+module load uri/main
+module load all/SAMtools/1.18-GCC-12.3.0
 
+BAM_DIR="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/rna_bams"
+# Move into the fastq directory to easily process files
+cd ${FASTQ_DIR}
 
+echo "Merge bam files" $(date)
+samtools merge Ptua_RNAseqAll.bam *sorted.bam 
 
+echo "Merge complete" $(date)
+```
 
-
-
-
-
+Submitted batch job 61728578
 
 Now that's done, I can start braker again. `nano braker3.sh`
 
@@ -1667,7 +1691,7 @@ Now that's done, I can start braker again. `nano braker3.sh`
 #SBATCH -e slurm-%j.error
 #SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
 
-echo "Starting BRAKER3 Annotation Pipeline at:" $(date)
+echo "Starting BRAKER3 Stranded UTR Annotation Pipeline at:" $(date)
 
 module load apptainer/latest
 
@@ -1679,62 +1703,163 @@ PROTEINS="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/protein_seqs/final_p
 OUT_DIR="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/braker3_output"
 SIF_IMAGE="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/braker3.sif"
 
-# Comma-separated BAMs list
-BAM_DIR="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/rna_bams"
-BAM_FILES="${BAM_DIR}/POC-201-TP1.sorted.bam,${BAM_DIR}/POC-201-TP2.sorted.bam,${BAM_DIR}/POC-201-TP3.sorted.bam,${BAM_DIR}/POC-219-TP1.sorted.bam,${BAM_DIR}/POC-219-TP2.sorted.bam,${BAM_DIR}/POC-219-TP3.sorted.bam,${BAM_DIR}/POC-219-TP4.sorted.bam,${BAM_DIR}/POC-222-TP1.sorted.bam,${BAM_DIR}/POC-222-TP2.sorted.bam,${BAM_DIR}/POC-222-TP3.sorted.bam,${BAM_DIR}/POC-222-TP4.sorted.bam,${BAM_DIR}/POC-255-TP1.sorted.bam,${BAM_DIR}/POC-255-TP2.sorted.bam,${BAM_DIR}/POC-255-TP3.sorted.bam,${BAM_DIR}/POC-255-TP4.sorted.bam,${BAM_DIR}/POC-259-TP1.sorted.bam,${BAM_DIR}/POC-259-TP2.sorted.bam,${BAM_DIR}/POC-259-TP3.sorted.bam,${BAM_DIR}/POC-259-TP4.sorted.bam,${BAM_DIR}/POC-40-TP1.sorted.bam,${BAM_DIR}/POC-40-TP2.sorted.bam,${BAM_DIR}/POC-40-TP3.sorted.bam,${BAM_DIR}/POC-40-TP4.sorted.bam,${BAM_DIR}/POC-42-TP1.sorted.bam,${BAM_DIR}/POC-42-TP2.sorted.bam,${BAM_DIR}/POC-42-TP3.sorted.bam,${BAM_DIR}/POC-42-TP4.sorted.bam,${BAM_DIR}/POC-52-TP1.sorted.bam,${BAM_DIR}/POC-52-TP2.sorted.bam,${BAM_DIR}/POC-52-TP3.sorted.bam,${BAM_DIR}/POC-52-TP4.sorted.bam,${BAM_DIR}/POC-53-TP1.sorted.bam,${BAM_DIR}/POC-53-TP2.sorted.bam,${BAM_DIR}/POC-53-TP3.sorted.bam,${BAM_DIR}/POC-53-TP4.sorted.bam,${BAM_DIR}/POC-57-TP1.sorted.bam,${BAM_DIR}/POC-57-TP2.sorted.bam,${BAM_DIR}/POC-57-TP3.sorted.bam,${BAM_DIR}/POC-57-TP4.sorted.bam"
+# Your newly merged master BAM file
+BAM_FILE="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/rna_bams/Ptua_RNAseqAll.bam"
 
 # ----------------------------------------------------
-# FIX: Extract and isolate Augustus Config onto Scratch
+# Setup Augustus Writeable Configuration Space
 # ----------------------------------------------------
 MY_AUG_CONFIG="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/augustus_config"
-
 if [ ! -d "$MY_AUG_CONFIG" ]; then
-    echo "Extracting Augustus config directory from container..."
-    # Throws the config directory from inside the image to your writable scratch space
     apptainer exec ${SIF_IMAGE} cp -r /opt/Augustus/config "$MY_AUG_CONFIG"
     chmod -R 755 "$MY_AUG_CONFIG"
 fi
 
-# Export environment variable for the container to register
 export AUGUSTUS_CONFIG_PATH="$MY_AUG_CONFIG"
-
-# Set up Apptainer Cache
+#export JAVA_PATH="/usr/bin"
 export APPTAINER_CACHEDIR=/scratch4/workspace/jillashey_uri_edu-Ptua_genome/.apptainer_cache
 export APPTAINER_TMPDIR=/scratch4/workspace/jillashey_uri_edu-Ptua_genome/.apptainer_cache
-mkdir -p $APPTAINER_CACHEDIR
+
+# Wiping previous outputs to ensure fresh model training
+rm -rf ${OUT_DIR}
+mkdir -p ${OUT_DIR}
 
 # ----------------------------------------------------
-# Run BRAKER3
+# Run BRAKER3 with Full UTR Training
 # ----------------------------------------------------
-# Added --AUGUSTUS_CONFIG_PATH flag to explicitly force the pipeline to use your scratch copy
 apptainer exec -B /work,/scratch4,${MY_AUG_CONFIG}:/opt/Augustus/config ${SIF_IMAGE} \
-braker.pl \
+    braker.pl \
+    --species=Pocillopora_tuahiniensis \
     --genome=${GENOME} \
-    --bam=${BAM_FILES} \
+    --bam=${BAM_FILE} \
     --prot_seq=${PROTEINS} \
     --workingdir=${OUT_DIR} \
     --threads=${SLURM_CPUS_PER_TASK} \
     --AUGUSTUS_CONFIG_PATH=${MY_AUG_CONFIG} \
-    --UTRs=on \
+    #--JAVA_PATH=${JAVA_PATH} \
+    --busco_lineage=metazoa_odb10 \
+    --UTR=on \
     --gff3
 
 echo "BRAKER3 pipeline completed at:" $(date)
 ```
 
-Submitted batch job 61584655
+Submitted batch job 61757302
 
-restart with sam pasa protein file too...maybe redo hisat2 with RF so stranded??
+https://github.com/Gaius-Augustus/BRAKER#braker-with-rna-seq-and-protein-data -- not working, try to look at braker arguments tomorrow 
 
+Run tRNAscan-se to identify tRNAs. `nano trnascan.sh`
 
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=24         
+#SBATCH --partition=gpu
+#SBATCH -G 1
+#SBATCH --no-requeue
+#SBATCH --mem=100GB                
+#SBATCH -t 48:00:00                
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
 
+echo "Starting tRNAscan-SE Analysis at:" $(date)
+
+module load conda/latest # need to load before making any conda envs
+conda activate /work/pi_hputnam_uri_edu/conda/envs/trnascan
+
+# Define your paths
+GENOME="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/ptua_softmasked/Pocillopora_tuahiniensis_genome_v1.0.fasta"
+OUT_DIR="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/trnascan_output"
+
+mkdir -p ${OUT_DIR}
+
+tRNAscan-SE -E \
+            --threads ${SLURM_CPUS_PER_TASK} \
+            -o ${OUT_DIR}/Ptua-tRNA.out \
+            -f ${OUT_DIR}/Ptua-tRNA_struct.out \
+            -m ${OUT_DIR}/Ptua-tRNA_stats.out \
+            -j ${OUT_DIR}/Ptua-tRNA.gff3 \
+            -a ${OUT_DIR}/Ptua-tRNA.fasta \
+            -d \
+            ${GENOME}
+
+conda deactivate
+
+echo "tRNAscan analysis complete" $(date)
+```
+
+Submitted batch job 61729456.
+
+Count number of tRNAs identified
+
+```
+cd /scratch4/workspace/jillashey_uri_edu-Ptua_genome/trnascan_output
+
+awk '/^[^#]/ {print $3}' Ptua-tRNA.gff3 | sort | uniq -c
+   4079 exon
+   1725 pseudogene
+   2271 tRNA
+```
+
+2271 tRNAs identified. 
+
+Run barrnap to identify rRNAs. `nano barrnap.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=24         
+#SBATCH --partition=gpu
+#SBATCH -G 1
+#SBATCH --no-requeue
+#SBATCH --mem=100GB                
+#SBATCH -t 48:00:00                
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+echo "Starting barrnap Analysis at:" $(date)
+
+module load conda/latest # need to load before making any conda envs
+conda activate /work/pi_hputnam_uri_edu/conda/envs/barrnap
+
+GENOME="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/ptua_softmasked/Pocillopora_tuahiniensis_genome_v1.0.fasta"
+OUT_DIR="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/barrnap_output"
+
+mkdir -p ${OUT_DIR}
+
+barrnap --kingdom euk \
+        --threads ${SLURM_CPUS_PER_TASK} \
+        --outseq ${OUT_DIR}/Ptua_rRNA.fa \
+        ${GENOME} > ${OUT_DIR}/Ptua_rRNA.gff3
+
+echo "barrnap complete" $(date)
+conda deactivate
+```
+
+Submitted batch job 61728863
+
+Count how many rRNAs were identifed
+
+```
+awk '$3 == "rRNA"' Ptua_rRNA.gff3 | wc -l
+```
+
+122 rRNAs identified. 
 
 
 
 to do 
 
 - run braker 
-- run trnascan
-- reassign repeat scffold names in repeatmasker files based on new names 
+- reassign repeat scffold names in repeatmasker files based on new names ?
 
 
 https://github.com/SequAna-Ukon/Porites_harrisoni_genome
