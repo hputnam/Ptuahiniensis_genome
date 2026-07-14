@@ -1744,9 +1744,76 @@ apptainer exec -B /work,/scratch4,${MY_AUG_CONFIG}:/opt/Augustus/config ${SIF_IM
 echo "BRAKER3 pipeline completed at:" $(date)
 ```
 
-Submitted batch job 61757302
+Submitted batch job 61757302.
 
-https://github.com/Gaius-Augustus/BRAKER#braker-with-rna-seq-and-protein-data -- not working, try to look at braker arguments tomorrow 
+Count number of features identified
+
+```
+awk '/^[^#]/ {print $3}' braker.gtf | sort | uniq -c
+
+ 245825 CDS
+ 245825 exon
+  27217 gene
+ 213122 intron
+   3038 mRNA
+  32650 start_codon
+  32660 stop_codon
+  32703 transcript
+  
+awk '/^[^#]/ {print $2}' braker.gtf | sort | uniq -c
+ 686589 AUGUSTUS
+  55232 GeneMark.hmm3
+  91219 gmst
+  
+grep -c ">" braker.aa
+32703
+
+grep -c ">" braker.codingseq
+32703
+```
+
+Calculate average protein length 
+
+```
+awk '/^>/ {if (seqlen) {sum+=seqlen; count++}; seqlen=0; next} {seqlen+=length($0)} END {if (seqlen) {sum+=seqlen; count++}; print "Average Protein Length: " sum/count " AA"}' braker.aa
+Average Protein Length: 505.544 AA
+```
+
+Calculate average gene length
+
+```
+awk '$3 == "transcript" || $3 == "mRNA" {sum += ($5 - $4 + 1); count++} END {print "Average Gene Genomic Length: " sum/count " bp"}' braker.gff3
+Average Gene Genomic Length: 5897.75 bp
+```
+
+Calculate mean number of exons per gene
+
+```
+awk 'BEGIN {print "Mean Exons per Gene: " 245825 / 27217}'
+Mean Exons per Gene: 9.03204
+```
+
+Calculate average exon length 
+
+```
+awk '$3 == "exon" {sum += ($5 - $4 + 1); count++} END {if (count > 0) print "Mean Exon Length: " sum/count " bp"}' braker.gff3
+Mean Exon Length: 201.763 bp
+```
+
+Calculate mean number of introns per gene
+
+```
+awk 'BEGIN {print "Mean Introns per Gene: " 213122 / 27217}'
+Mean Introns per Gene: 7.83047
+```
+
+Calculate average intron length 
+
+```
+awk '$3 == "intron" {sum += ($5 - $4 + 1); count++} END {if (count > 0) print "Mean Intron Length: " sum/count " bp"}' braker.gtf
+Mean Intron Length: 672.271 bp
+```
+
 
 Run tRNAscan-se to identify tRNAs. `nano trnascan.sh`
 
@@ -1854,12 +1921,57 @@ awk '$3 == "rRNA"' Ptua_rRNA.gff3 | wc -l
 
 122 rRNAs identified. 
 
+CAT GFF3 TOGETHER 
+
+## funannotate for functional annotation
+
+Eggnog. `nano eggnog.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=24         
+#SBATCH --partition=gpu
+#SBATCH -G 1
+#SBATCH --no-requeue
+#SBATCH --mem=100GB                
+#SBATCH -t 48:00:00                
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+echo "Starting EggNOG-mapper analysis at:" $(date)
+
+# Load modules
+module load uri/main
+module load all/eggnog-mapper/2.1.9-foss-2022a
+
+# Define paths
+PROT_FASTA="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/braker3_output/braker.aa"
+OUT_DIR="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/func_anno"
+
+mkdir -p ${OUT_DIR}
+
+emapper.py \
+    -i ${PROT_FASTA} \
+    -o ${OUT_DIR}/Ptua_eggnog \
+    -m diamond \
+    --sensmode sensitive \
+    --cpu ${SLURM_CPUS_PER_TASK} \
+    --override
+
+echo "EggNOG-mapper analysis completed at:" $(date)
+```
+
+TROUBLESHOOT THIS
 
 
-to do 
 
-- run braker 
-- reassign repeat scffold names in repeatmasker files based on new names ?
+
+
 
 
 https://github.com/SequAna-Ukon/Porites_harrisoni_genome
