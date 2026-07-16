@@ -1945,19 +1945,19 @@ Eggnog. `nano eggnog.sh`
 
 echo "Starting EggNOG-mapper analysis at:" $(date)
 
-# Load modules
+# Load environmental modules
 module load uri/main
 module load all/eggnog-mapper/2.1.9-foss-2022a
 
-# Define paths
+# Define Paths
 PROT_FASTA="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/braker3_output/braker.aa"
 OUT_DIR="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/func_anno"
 
-mkdir -p ${OUT_DIR}
-
+# Run EggNOG-mapper
 emapper.py \
     -i ${PROT_FASTA} \
     -o ${OUT_DIR}/Ptua_eggnog \
+    --data_dir /datasets/bio/eggnog5-data/ \
     -m diamond \
     --sensmode sensitive \
     --cpu ${SLURM_CPUS_PER_TASK} \
@@ -1966,8 +1966,7 @@ emapper.py \
 echo "EggNOG-mapper analysis completed at:" $(date)
 ```
 
-TROUBLESHOOT THIS
-
+Submitted batch job 61884709
 
 
 
