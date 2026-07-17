@@ -137,9 +137,28 @@ Run [BRAKER3](https://github.com/Gaius-Augustus/BRAKER) with protein sequences a
 
 Identify tRNAs in the assembled genome with [tRNAscan-SE](https://github.com/UCSC-LoweLab/tRNAscan-SE). This can be run while braker3 is also running. 
 
-### [`31_barrnap.sh`](https://github.com/hputnam/Ptuahiniensis_genome/blob/main/bash_scripts/30_trnascan.sh)
+### [`31_barrnap.sh`](https://github.com/hputnam/Ptuahiniensis_genome/blob/main/bash_scripts/31_barrnap.sh)
 
 Identify rRNAs in the assembled genome with [barrnap](https://github.com/tseemann/barrnap). This can be run while braker3 is also running. 
 
+### [`32_cat_gff3.sh`](https://github.com/hputnam/Ptuahiniensis_genome/blob/main/bash_scripts/32_cat_gff3.sh)
 
+Cat the gene, tRNA, and rRNA gff3s together into one master gff3. 
+
+### [`33_eggnog.sh`](https://github.com/hputnam/Ptuahiniensis_genome/blob/main/bash_scripts/33_eggnog.sh)
+
+Use [eggnog](https://github.com/eggnogdb/eggnog-mapper) to perform functional annotation on the predicted proteins.
+
+### [`34_interproscan.sh`](https://github.com/hputnam/Ptuahiniensis_genome/blob/main/bash_scripts/34_interproscan.sh)
+
+Use [InterProScan](https://github.com/ebi-pf-team/interproscan) to perform functional annotation on the predicted proteins.
+
+
+
+
+35 -- setup funannotate 
+
+36 -- funannotate merge 
+
+37 -- blobtools 
 

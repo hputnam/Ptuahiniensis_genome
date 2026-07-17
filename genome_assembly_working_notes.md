@@ -1921,9 +1921,42 @@ awk '$3 == "rRNA"' Ptua_rRNA.gff3 | wc -l
 
 122 rRNAs identified. 
 
-CAT GFF3 TOGETHER 
+Cat gff3s together for full structural annotation. `nano cat_gff3.sh`
 
-## funannotate for functional annotation
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=24         
+#SBATCH --partition=gpu
+#SBATCH -G 1
+#SBATCH --no-requeue
+#SBATCH --mem=100GB                
+#SBATCH -t 48:00:00                
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+echo "Cat GFFs" $(date)
+
+cat braker3_output/braker.gff3 \
+    trnascan_output/Ptua-tRNA.gff3 \
+    barrnap_output/Ptua_rRNA.gff3 \
+    > Pocillopora_tuahiniensis_genome_v1.0.master.gff3
+    
+echo "Cat complete" $(date)
+``` 
+
+Submitted batch job 61906099
+
+Uploaded genome to NCBI
+- BioProject: PRJNA1496434
+- Biosample: SAMN61716200
+- Locus tag prefixes: AC51O9
+
+## functional annotation
 
 Eggnog. `nano eggnog.sh`
 
@@ -1967,6 +2000,67 @@ echo "EggNOG-mapper analysis completed at:" $(date)
 ```
 
 Submitted batch job 61884709
+
+Run interproscan. `nano interproscan.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=24         
+#SBATCH --partition=gpu
+#SBATCH -G 1
+#SBATCH --no-requeue
+#SBATCH --mem=100GB                
+#SBATCH -t 120:00:00                
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+echo "Starting InterProScan analysis at:" $(date)
+
+# Load modules
+module load uri/main
+module load all/InterProScan/5.73-104.0-foss-2024a
+
+# Remove asterisks 
+sed 's/\*//g' /scratch4/workspace/jillashey_uri_edu-Ptua_genome/braker3_output/braker.aa > /scratch4/workspace/jillashey_uri_edu-Ptua_genome/braker3_output/braker_clean.aa
+
+# Define paths
+PROT_FASTA="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/braker3_output/braker_clean.aa"
+OUT_DIR="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/func_anno"
+
+#mkdir -p ${OUT_DIR}
+
+# Run interproscan
+interproscan.sh \
+    -i ${PROT_FASTA} \
+    -b ${OUT_DIR}/Ptua_iprscan \
+    -f XML \
+    -goterms \
+    -pa \
+    -cpu ${SLURM_CPUS_PER_TASK}
+
+echo "InterProScan analysis completed at:" $(date)
+```
+
+Submitted batch job 61905140 
+
+Install funannotate and blobtools 
+
+```
+module load conda/latest 
+#conda activate base
+
+# (Specifying Python 3.8 ensures compatibility with all funannotate dependencies)
+conda create -p /work/pi_hputnam_uri_edu/conda/envs/funannotate -c conda-forge -c bioconda funannotate python=3.8 -y
+
+conda create -p /work/pi_hputnam_uri_edu/conda/envs/blobtools -c conda-forge -c bioconda blobtoolkit firefox geckodriver -y
+```
+
+
 
 
 
