@@ -41,7 +41,8 @@ busco_reordered <- busco_long %>%
                                       "Fragmented (F)",
                                       "Missing (M)")),
          Species = factor(Species, 
-                     levels = c("Pocillopora verrucosa", 
+                     levels = c("Pocillopora cf. effusa",
+                                "Pocillopora verrucosa", 
                                 "Pocillopora damicornis", 
                                 "Pocillopora acuta (Indonesia)", 
                                 "Pocillopora acuta (Hawai'i)", 
@@ -49,7 +50,8 @@ busco_reordered <- busco_long %>%
                                 "Pocillopora tuahiniensis"))) %>%
   group_by(Species) %>%
   arrange(desc(Percentage), .by_group = TRUE) %>%
-  ungroup()
+  ungroup() %>%
+  na.omit()
 
 # Create a separate dataframe for labels
 label_data <- busco_reordered %>%
@@ -62,6 +64,7 @@ label_data <- busco_reordered %>%
     Species == "Pocillopora acuta (Indonesia)" ~ "Cs = 89.0%, Cd = 0.4%, F = 6.9%, M = 3.7%",
     Species == "Pocillopora damicornis" ~ "Cs = 90.5%, Cd = 0.2%, F = 4.2%, M = 5.1%",
     Species == "Pocillopora verrucosa" ~ "Cs = 92.0%, Cd = 2.9%, F = 2.5%, M = 2.5%",
+    Species == "Pocillopora cf. effusa" ~ "Cs = 92.0%, Cd = 2.8%, F = 2.4%, M = 2.8%",
     TRUE ~ ""
   ))
 ```
@@ -75,7 +78,7 @@ ggplot(busco_reordered, aes(x = Species, y = Percentage, fill = fct_rev(Category
   #           color = "white", size = 4, fontface = "bold") +
   geom_text(data = label_data, aes(x = Species, y = 0.5, label = Label), 
             color = "black", 
-            size = 5,
+            size = 6,
             inherit.aes = F) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), expand = c(0, 0)) +
   #scale_fill_manual(values = c("#00441b", "#238b45", "#66c2a4", "#b2e2e2")) +
@@ -90,7 +93,8 @@ ggplot(busco_reordered, aes(x = Species, y = Percentage, fill = fct_rev(Category
     axis.title.x = element_text(size = 23),
     axis.text.x = element_text(color = "black", size = 20),
     legend.position = "right",
-    legend.title = element_text(face = "bold"),
+    legend.title = element_text(face = "bold", size = 16),
+    legend.text = element_text(size = 15),
     #panel.grid.major.y = element_line(color = "black"),
     axis.line.y = element_line(color = "black"),
     panel.grid.major = element_line(color = "black"),
@@ -98,7 +102,7 @@ ggplot(busco_reordered, aes(x = Species, y = Percentage, fill = fct_rev(Category
   guides(fill = guide_legend(reverse = TRUE))
 
 # Save 
-ggsave("../output/assembly/final/busco_comparisons.pdf", plot = last_plot(), width = 15, height = 10)
-ggsave("../output/assembly/final/busco_comparisons.png", plot = last_plot(), width = 15, height = 10)
+ggsave("../output/assembly/final/busco_comparisons.pdf", plot = last_plot(), width = 15, height = 12)
+ggsave("../output/assembly/final/busco_comparisons.png", plot = last_plot(), width = 15, height = 12)
 ```
 
