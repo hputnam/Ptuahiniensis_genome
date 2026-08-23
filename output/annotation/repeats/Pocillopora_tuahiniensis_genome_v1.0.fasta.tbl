@@ -1,0 +1,58 @@
+==================================================
+file name: Pocillopora_tuahiniensis_genome_v1.0.fasta
+sequences:          1137
+total length:  356090324 bp  (356090324 bp excl N/X-runs)
+GC level:         38.00 %
+bases masked:  137714930 bp ( 38.67 %)
+==================================================
+               number of      length   percentage
+               elements*    occupied  of sequence
+--------------------------------------------------
+Retroelements        77161     25296171 bp    7.10 %
+   SINEs:            22015      3535988 bp    0.99 %
+   Penelope:             0            0 bp    0.00 %
+   LINEs:            41925     14955039 bp    4.20 %
+    CRE/SLACS          201        99362 bp    0.03 %
+     L2/CR1/Rex      16823      7440228 bp    2.09 %
+     R1/LOA/Jockey       0            0 bp    0.00 %
+     R2/R4/NeSL       1609       338900 bp    0.10 %
+     RTE/Bov-B        1113       822564 bp    0.23 %
+     L1/CIN4           138       125239 bp    0.04 %
+   LTR elements:     13221      6805144 bp    1.91 %
+     BEL/Pao          2007      1980137 bp    0.56 %
+     Ty1/Copia           5         9657 bp    0.00 %
+     Gypsy/DIRS1      4769      3457522 bp    0.97 %
+       Retroviral        0            0 bp    0.00 %
+
+DNA transposons      25668     10551497 bp    2.96 %
+   hobo-Activator     4151      1226075 bp    0.34 %
+   Tc1-IS630-Pogo     2965       729565 bp    0.20 %
+   En-Spm                0            0 bp    0.00 %
+   MULE-MuDR             0            0 bp    0.00 %
+   PiggyBac            134        80247 bp    0.02 %
+   Tourist/Harbinger  3541      1141824 bp    0.32 %
+   Other (Mirage,        0            0 bp    0.00 %
+    P-element, Transib)
+
+Rolling-circles       3062      1806143 bp    0.51 %
+
+Unclassified:       318704     94710547 bp   26.60 %
+
+Total interspersed repeats:   130558215 bp   36.66 %
+
+
+Small RNA:            9608      2265532 bp    0.64 %
+
+Satellites:              0            0 bp    0.00 %
+Simple repeats:      53766      2556846 bp    0.72 %
+Low complexity:       9931       528194 bp    0.15 %
+==================================================
+
+* most repeats fragmented by insertions or deletions
+  have been counted as one element
+                                                      
+
+RepeatMasker version 4.2.2 , sensitive mode                                       
+run with rmblastn version 2.14.1+
+The query was compared to classified sequences in "ptua_repeat_db-families.fa"
+FamDB: 

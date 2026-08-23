@@ -1,0 +1,32 @@
+# BUSCO version is: 5.8.3 
+# The lineage dataset is: metazoa_odb10 (Creation date: 2024-01-08, number of genomes: 65, number of BUSCOs: 954)
+# Summarized benchmarking in BUSCO notation for file /scratch4/workspace/jillashey_uri_edu-Ptua_genome/Pocillopora_tuahiniensis_genome_v1.0.fasta
+# BUSCO was run in mode: euk_genome_min
+# Gene predictor used: miniprot
+
+	***** Results: *****
+
+	C:96.4%[S:91.3%,D:5.1%],F:0.8%,M:2.7%,n:954,E:4.3%	   
+	920	Complete BUSCOs (C)	(of which 40 contain internal stop codons)		   
+	871	Complete and single-copy BUSCOs (S)	   
+	49	Complete and duplicated BUSCOs (D)	   
+	8	Fragmented BUSCOs (F)			   
+	26	Missing BUSCOs (M)			   
+	954	Total BUSCO groups searched		   
+
+Assembly Statistics:
+	1137	Number of scaffolds
+	1137	Number of contigs
+	356090324	Total length
+	0.000%	Percent gaps
+	738 KB	Scaffold N50
+	738 KB	Contigs N50
+
+
+Dependencies and versions:
+	hmmsearch: 3.4
+	bbtools: None
+	miniprot_index: 0.17-r279
+	miniprot_align: 0.17-r279
+	python: sys.version_info(major=3, minor=7, micro=12, releaselevel='final', serial=0)
+	busco: 5.8.3

@@ -1,0 +1,97 @@
+/modules/uri_apps/software/QUAST/5.0.2-foss-2021b/bin/quast --eukaryote Pocillopora_tuahiniensis_genome_v1.0.fasta Ptua_polished.fasta Ptua_primary_clean.fasta.k32.w100.z1000.ntLink.gap_fill.5rounds.fa Ptua_primary_clean.fasta Ptua_primary.fasta Pver_genome_assembly_v1.0.fasta /work/pi_hputnam_uri_edu/HI_Genomes/Pmeandrina/Pocillopora_meandrina_HIv1.assembly.fasta /work/pi_hputnam_uri_edu/HI_Genomes/PacutaV2/Pocillopora_acuta_HIv2.assembly.fasta -o quast
+
+Version: 5.0.2
+
+System information:
+  OS: Linux-6.8.0-136-generic-x86_64-with-glibc2.39 (linux_64)
+  Python version: 3.9.6
+  CPUs number: 64
+
+Started: 2026-08-20 18:57:24
+
+Logging to /scratch4/workspace/jillashey_uri_edu-Ptua_genome/quast/quast.log
+NOTICE: Maximum number of threads is set to 16 (use --threads option to set it manually)
+
+CWD: /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+Main parameters: 
+  MODE: default, threads: 16, eukaryotic: true, minimum contig length: 500, minimum alignment length: 65, \
+  ambiguity: one, threshold for extensive misassembly size: 1000
+
+Contigs:
+  Pre-processing...
+  1  Pocillopora_tuahiniensis_genome_v1.0.fasta ==> Pocillopora_tuahiniensis_genome_v1.0
+  2  Ptua_polished.fasta ==> Ptua_polished
+  3  Ptua_primary_clean.fasta.k32.w100.z1000.ntLink.gap_fill.5rounds.fa ==> Ptua_primary_clean.fasta.k32.w100.z1000.ntLink.gap_fill.5rounds
+  4  Ptua_primary_clean.fasta ==> Ptua_primary_clean
+  5  Ptua_primary.fasta ==> Ptua_primary
+  6  Pver_genome_assembly_v1.0.fasta ==> Pver_genome_assembly_v1.0
+  7  /work/pi_hputnam_uri_edu/HI_Genomes/Pmeandrina/Pocillopora_meandrina_HIv1.assembly.fasta ==> Pocillopora_meandrina_HIv1.assembly
+  8  /work/pi_hputnam_uri_edu/HI_Genomes/PacutaV2/Pocillopora_acuta_HIv2.assembly.fasta ==> Pocillopora_acuta_HIv2.assembly
+
+2026-08-20 18:58:07
+Running Basic statistics processor...
+  Contig files: 
+    1  Pocillopora_tuahiniensis_genome_v1.0
+    2  Ptua_polished
+    3  Ptua_primary_clean.fasta.k32.w100.z1000.ntLink.gap_fill.5rounds
+    4  Ptua_primary_clean
+    5  Ptua_primary
+    6  Pver_genome_assembly_v1.0
+    7  Pocillopora_meandrina_HIv1.assembly
+    8  Pocillopora_acuta_HIv2.assembly
+  Calculating N50 and L50...
+    1  Pocillopora_tuahiniensis_genome_v1.0, N50 = 738496, L50 = 141, Total length = 356090324, GC % = 38.00, # N's per 100 kbp =  0.00
+    2  Ptua_polished, N50 = 738496, L50 = 141, Total length = 356090324, GC % = 38.00, # N's per 100 kbp =  0.00
+    3  Ptua_primary_clean.fasta.k32.w100.z1000.ntLink.gap_fill.5rounds, N50 = 739102, L50 = 141, Total length = 357075554, GC % = 38.01, # N's per 100 kbp =  0.03
+    4  Ptua_primary_clean, N50 = 378534, L50 = 282, Total length = 358676018, GC % = 38.01, # N's per 100 kbp =  0.00
+    5  Ptua_primary, N50 = 347400, L50 = 320, Total length = 386080404, GC % = 38.51, # N's per 100 kbp =  0.00
+    6  Pver_genome_assembly_v1.0, N50 = 333696, L50 = 326, Total length = 380505698, GC % = 38.09, # N's per 100 kbp =  134.04
+    7  Pocillopora_meandrina_HIv1.assembly, N50 = 10024633, L50 = 13, Total length = 376579914, GC % = 38.03, # N's per 100 kbp =  0.00
+    8  Pocillopora_acuta_HIv2.assembly, N50 = 5167277, L50 = 24, Total length = 408287534, GC % = 38.11, # N's per 100 kbp =  0.00
+  Drawing Nx plot...
+    saved to /scratch4/workspace/jillashey_uri_edu-Ptua_genome/quast/basic_stats/Nx_plot.pdf
+  Drawing cumulative plot...
+    saved to /scratch4/workspace/jillashey_uri_edu-Ptua_genome/quast/basic_stats/cumulative_plot.pdf
+  Drawing GC content plot...
+    saved to /scratch4/workspace/jillashey_uri_edu-Ptua_genome/quast/basic_stats/GC_content_plot.pdf
+  Drawing Pocillopora_tuahiniensis_genome_v1.0 GC content plot...
+    saved to /scratch4/workspace/jillashey_uri_edu-Ptua_genome/quast/basic_stats/Pocillopora_tuahiniensis_genome_v1.0_GC_content_plot.pdf
+  Drawing Ptua_polished GC content plot...
+    saved to /scratch4/workspace/jillashey_uri_edu-Ptua_genome/quast/basic_stats/Ptua_polished_GC_content_plot.pdf
+  Drawing Ptua_primary_clean.fasta.k32.w100.z1000.ntLink.gap_fill.5rounds GC content plot...
+    saved to /scratch4/workspace/jillashey_uri_edu-Ptua_genome/quast/basic_stats/Ptua_primary_clean.fasta.k32.w100.z1000.ntLink.gap_fill.5rounds_GC_content_plot.pdf
+  Drawing Ptua_primary_clean GC content plot...
+    saved to /scratch4/workspace/jillashey_uri_edu-Ptua_genome/quast/basic_stats/Ptua_primary_clean_GC_content_plot.pdf
+  Drawing Ptua_primary GC content plot...
+    saved to /scratch4/workspace/jillashey_uri_edu-Ptua_genome/quast/basic_stats/Ptua_primary_GC_content_plot.pdf
+  Drawing Pver_genome_assembly_v1.0 GC content plot...
+    saved to /scratch4/workspace/jillashey_uri_edu-Ptua_genome/quast/basic_stats/Pver_genome_assembly_v1.0_GC_content_plot.pdf
+  Drawing Pocillopora_meandrina_HIv1.assembly GC content plot...
+    saved to /scratch4/workspace/jillashey_uri_edu-Ptua_genome/quast/basic_stats/Pocillopora_meandrina_HIv1.assembly_GC_content_plot.pdf
+  Drawing Pocillopora_acuta_HIv2.assembly GC content plot...
+    saved to /scratch4/workspace/jillashey_uri_edu-Ptua_genome/quast/basic_stats/Pocillopora_acuta_HIv2.assembly_GC_content_plot.pdf
+Done.
+
+NOTICE: Genes are not predicted by default. Use --gene-finding or --glimmer option to enable it.
+
+2026-08-20 18:59:23
+Creating large visual summaries...
+This may take a while: press Ctrl-C to skip this step..
+  1 of 2: Creating Icarus viewers...
+  2 of 2: Creating PDF with all tables and plots...
+Done
+
+2026-08-20 18:59:36
+RESULTS:
+  Text versions of total report are saved to /scratch4/workspace/jillashey_uri_edu-Ptua_genome/quast/report.txt, report.tsv, and report.tex
+  Text versions of transposed total report are saved to /scratch4/workspace/jillashey_uri_edu-Ptua_genome/quast/transposed_report.txt, transposed_report.tsv, and transposed_report.tex
+  HTML version (interactive tables and plots) is saved to /scratch4/workspace/jillashey_uri_edu-Ptua_genome/quast/report.html
+  PDF version (tables and plots) is saved to /scratch4/workspace/jillashey_uri_edu-Ptua_genome/quast/report.pdf
+  Icarus (contig browser) is saved to /scratch4/workspace/jillashey_uri_edu-Ptua_genome/quast/icarus.html
+  Log is saved to /scratch4/workspace/jillashey_uri_edu-Ptua_genome/quast/quast.log
+
+Finished: 2026-08-20 18:59:36
+Elapsed time: 0:02:12.283382
+NOTICEs: 2; WARNINGs: 0; non-fatal ERRORs: 0
+
+Thank you for using QUAST!

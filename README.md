@@ -1,16 +1,16 @@
-## Assembly and annotation of the genome for Pocillopora tuahiniensis 
+## Assembly and annotation of the genome for *Pocillopora tuahiniensis* 
 
 ### Workflow 
 
-The following workflow will be presented along with the corresponding bash script in this repo. 
+The following workflow was used to assemble and annotate the *Pocillopora tuahiniensis* genome. 
 
 ### [`01_checksums.sh`](https://github.com/hputnam/Ptuahiniensis_genome/blob/main/bash_scripts/01_checksums.sh)
 
-Runs a checksum on the raw data to ensure it downloaded to the remote server properly. 
+Run a checksum on the raw data to ensure it downloaded to the remote server properly. 
 
 ### [`02_check_bam.sh`](https://github.com/hputnam/Ptuahiniensis_genome/blob/main/bash_scripts/02_check_bam.sh)
 
-Checkes that file is intact and headers are present.
+Check that file is intact and headers are present.
 
 ### [`03_convert_bam2fastq.sh`](https://github.com/hputnam/Ptuahiniensis_genome/blob/main/bash_scripts/03_convert_bam2fastq.sh)
 
@@ -22,11 +22,66 @@ Using [seqtk](https://github.com/lh3/seqtk), convert the fastq to a fasta file a
 
 ### [`05_kmercount_jellyfish.sh`](https://github.com/hputnam/Ptuahiniensis_genome/blob/main/bash_scripts/05_kmercount_jellyfish.sh)
 
-Count the k-mers of the raw fastq file using [Jellyfish](https://github.com/gmarcais/jellyfish).
+Count the k-mers of the raw fastq file using [Jellyfish](https://github.com/gmarcais/jellyfish) and [Genomescope](https://github.com/schatzlab/genomescope).
 
 ### [`06_mito_assemble.sh`](https://github.com/hputnam/Ptuahiniensis_genome/blob/main/bash_scripts/06_mito_assemble.sh)
 
 Assemble the mitochondrial genome using [MitoHiFi](https://github.com/marcelauliano/MitoHiFi). For the Ptua genome, we used the P. damicornis [mitochondrial genome](https://www.ncbi.nlm.nih.gov/nuccore/EF526302) as a reference. 
+
+### 07 hifiasm 
+
+### 08 fcs-gx screen
+
+### 09 fcs-gx clean
+
+### 10 ntlinks
+
+### 11 polish
+
+### 12 funannotate sort 
+
+### 13 rename genome
+
+### 14 quast 
+
+### 15 busco
+
+### 16 repeat modeler
+
+### 17repeat masker
+
+### 18 pull braker 
+
+### 19 rna qc 
+
+### 20 rna trim 
+
+### 21 rna trinity 
+
+### 22 proteins 
+
+### 23 get rna
+
+### 24 hisat2
+
+### 25 braker3 
+
+### 26 UTRs
+
+### 27 tRNA
+
+### 28 rRNA
+
+cat gffs 
+
+
+
+
+
+
+
+
+
 
 ### [`07_blastn_contam_euk.sh`](https://github.com/hputnam/Ptuahiniensis_genome/blob/main/bash_scripts/07_blastn_contam_euk.sh)
 

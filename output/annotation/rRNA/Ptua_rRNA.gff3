@@ -1,0 +1,131 @@
+##gff-version 3
+Pocillopora_tuahiniensis_scaffold1018	barrnap:0.9	rRNA	3670	3784	8.2e-22	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1018	barrnap:0.9	rRNA	18575	18689	8.2e-22	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1018	barrnap:0.9	rRNA	27572	27686	8.2e-22	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1018	barrnap:0.9	rRNA	31178	31292	8.2e-22	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1018	barrnap:0.9	rRNA	35675	35789	8.2e-22	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1018	barrnap:0.9	rRNA	40172	40286	8.2e-22	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1018	barrnap:0.9	rRNA	44418	44532	8.2e-22	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1018	barrnap:0.9	rRNA	51971	52085	8.2e-22	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1018	barrnap:0.9	rRNA	54167	54281	8.2e-22	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1018	barrnap:0.9	rRNA	56363	56477	8.2e-22	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1037	barrnap:0.9	rRNA	3796	3910	8.2e-22	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1037	barrnap:0.9	rRNA	8238	8352	8.2e-22	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1037	barrnap:0.9	rRNA	18558	18672	8.2e-22	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1037	barrnap:0.9	rRNA	20754	20868	8.2e-22	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	631	745	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	1793	1907	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	2947	3061	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	4102	4216	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	5646	5760	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	6795	6909	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	7939	8053	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	9911	10025	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	10758	10836	9.3e-12	-	.	Name=5S_rRNA;product=5S ribosomal RNA (partial);note=aligned only 66 percent of the 5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	11768	11882	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	12927	13041	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	14083	14197	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	15239	15353	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	16399	16513	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	17561	17675	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	18720	18834	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	19571	19685	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	20724	20838	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	21879	21993	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	22662	22775	1.4e-19	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	23753	23867	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	24886	25000	4.1e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	30122	30216	1e-08	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	31250	31364	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	32386	32500	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1045	barrnap:0.9	rRNA	33529	33643	4.2e-21	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1082	barrnap:0.9	rRNA	6	1637	0	+	.	Name=18S_rRNA;product=18S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1082	barrnap:0.9	rRNA	2046	6225	0	+	.	Name=28S_rRNA;product=28S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1082	barrnap:0.9	rRNA	2052	2203	8.6e-34	+	.	Name=5_8S_rRNA;product=5.8S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1082	barrnap:0.9	rRNA	10088	11892	0	+	.	Name=18S_rRNA;product=18S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1082	barrnap:0.9	rRNA	12307	12458	8.6e-34	+	.	Name=5_8S_rRNA;product=5.8S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1084	barrnap:0.9	rRNA	925	4574	0	+	.	Name=28S_rRNA;product=28S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold110	barrnap:0.9	rRNA	2410543	2411517	1.2e-117	+	.	Name=28S_rRNA;product=28S ribosomal RNA (partial);note=aligned only 33 percent of the 28S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold110	barrnap:0.9	rRNA	2410549	2410700	8.6e-34	+	.	Name=5_8S_rRNA;product=5.8S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1113	barrnap:0.9	rRNA	4545	6358	0	+	.	Name=18S_rRNA;product=18S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1113	barrnap:0.9	rRNA	6763	9021	0	+	.	Name=28S_rRNA;product=28S ribosomal RNA (partial);note=aligned only 77 percent of the 28S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1113	barrnap:0.9	rRNA	6770	6921	8.6e-34	+	.	Name=5_8S_rRNA;product=5.8S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1115	barrnap:0.9	rRNA	2417	5622	0	-	.	Name=28S_rRNA;product=28S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1115	barrnap:0.9	rRNA	5477	5617	2e-18	-	.	Name=5_8S_rRNA;product=5.8S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1115	barrnap:0.9	rRNA	6077	7954	1.4e-172	-	.	Name=18S_rRNA;product=18S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1116	barrnap:0.9	rRNA	1	1006	2.4e-231	-	.	Name=18S_rRNA;product=18S ribosomal RNA (partial);note=aligned only 53 percent of the 18S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1116	barrnap:0.9	rRNA	4863	9041	0	-	.	Name=28S_rRNA;product=28S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1116	barrnap:0.9	rRNA	8884	9035	8.6e-34	-	.	Name=5_8S_rRNA;product=5.8S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1116	barrnap:0.9	rRNA	9450	11256	0	-	.	Name=18S_rRNA;product=18S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1129	barrnap:0.9	rRNA	153	3806	0	-	.	Name=28S_rRNA;product=28S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1129	barrnap:0.9	rRNA	3649	3800	8.6e-34	-	.	Name=5_8S_rRNA;product=5.8S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1129	barrnap:0.9	rRNA	4214	6018	0	-	.	Name=18S_rRNA;product=18S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold113	barrnap:0.9	rRNA	317778	317892	8.2e-22	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold113	barrnap:0.9	rRNA	1134352	1134466	8.2e-22	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold113	barrnap:0.9	rRNA	1138933	1139047	8.2e-22	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold113	barrnap:0.9	rRNA	1141134	1141248	8.2e-22	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold113	barrnap:0.9	rRNA	1144245	1144359	8.2e-22	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold113	barrnap:0.9	rRNA	1146446	1146560	8.2e-22	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold113	barrnap:0.9	rRNA	1149517	1149631	8.2e-22	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold113	barrnap:0.9	rRNA	1151713	1151827	8.2e-22	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1130	barrnap:0.9	rRNA	636	1298	1.2e-170	-	.	Name=18S_rRNA;product=18S ribosomal RNA (partial);note=aligned only 35 percent of the 18S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1135	barrnap:0.9	rRNA	304	418	8.2e-22	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1135	barrnap:0.9	rRNA	2500	2614	8.2e-22	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1135	barrnap:0.9	rRNA	4696	4810	8.2e-22	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold1135	barrnap:0.9	rRNA	6890	7004	8.2e-22	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold147	barrnap:0.9	rRNA	209027	211079	0	-	.	Name=28S_rRNA;product=28S ribosomal RNA (partial);note=aligned only 70 percent of the 28S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold181	barrnap:0.9	rRNA	211160	212477	0	-	.	Name=28S_rRNA;product=28S ribosomal RNA (partial);note=aligned only 45 percent of the 28S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold181	barrnap:0.9	rRNA	223762	224739	9.2e-268	-	.	Name=28S_rRNA;product=28S ribosomal RNA (partial);note=aligned only 33 percent of the 28S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold181	barrnap:0.9	rRNA	227317	228530	5.3e-290	+	.	Name=18S_rRNA;product=18S ribosomal RNA (partial);note=aligned only 64 percent of the 18S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold181	barrnap:0.9	rRNA	228532	229012	1.6e-108	+	.	Name=18S_rRNA;product=18S ribosomal RNA (partial);note=aligned only 25 percent of the 18S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold181	barrnap:0.9	rRNA	229362	231484	0	+	.	Name=28S_rRNA;product=28S ribosomal RNA (partial);note=aligned only 72 percent of the 28S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold181	barrnap:0.9	rRNA	229368	229509	1.7e-27	+	.	Name=5_8S_rRNA;product=5.8S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold198	barrnap:0.9	rRNA	187607	189896	1e-269	-	.	Name=28S_rRNA;product=28S ribosomal RNA (partial);note=aligned only 78 percent of the 28S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold204	barrnap:0.9	rRNA	701952	702507	1.2e-101	-	.	Name=18S_rRNA;product=18S ribosomal RNA (partial);note=aligned only 29 percent of the 18S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold213	barrnap:0.9	rRNA	902377	903427	1e-227	+	.	Name=18S_rRNA;product=18S ribosomal RNA (partial);note=aligned only 56 percent of the 18S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold214	barrnap:0.9	rRNA	117196	117291	1.5e-12	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold214	barrnap:0.9	rRNA	117960	118074	3.4e-19	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold214	barrnap:0.9	rRNA	119024	119138	4.2e-21	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold214	barrnap:0.9	rRNA	120173	120287	4.2e-21	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold214	barrnap:0.9	rRNA	121331	121445	4.2e-21	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold214	barrnap:0.9	rRNA	122478	122592	4.2e-21	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold214	barrnap:0.9	rRNA	123624	123738	4.2e-21	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold214	barrnap:0.9	rRNA	124776	124890	4.2e-21	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold214	barrnap:0.9	rRNA	125920	126034	4.2e-21	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold214	barrnap:0.9	rRNA	127072	127186	4.2e-21	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold214	barrnap:0.9	rRNA	128216	128330	4.2e-21	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold214	barrnap:0.9	rRNA	129354	129468	4.2e-21	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold214	barrnap:0.9	rRNA	130504	130618	4.2e-21	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold214	barrnap:0.9	rRNA	131649	131763	4.2e-21	+	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold256	barrnap:0.9	rRNA	20617	21395	4e-201	-	.	Name=18S_rRNA;product=18S ribosomal RNA (partial);note=aligned only 41 percent of the 18S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold395	barrnap:0.9	rRNA	130460	134423	0	-	.	Name=28S_rRNA;product=28S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold395	barrnap:0.9	rRNA	134266	134417	8.6e-34	-	.	Name=5_8S_rRNA;product=5.8S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold395	barrnap:0.9	rRNA	136347	137387	1e-243	+	.	Name=18S_rRNA;product=18S ribosomal RNA (partial);note=aligned only 55 percent of the 18S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold589	barrnap:0.9	rRNA	389243	390058	2.6e-212	-	.	Name=18S_rRNA;product=18S ribosomal RNA (partial);note=aligned only 43 percent of the 18S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold749	barrnap:0.9	rRNA	104427	105500	7.3e-292	+	.	Name=18S_rRNA;product=18S ribosomal RNA (partial);note=aligned only 57 percent of the 18S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold749	barrnap:0.9	rRNA	105908	110087	0	+	.	Name=28S_rRNA;product=28S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold749	barrnap:0.9	rRNA	105914	106065	8.6e-34	+	.	Name=5_8S_rRNA;product=5.8S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold91	barrnap:0.9	rRNA	3027	7149	0	-	.	Name=28S_rRNA;product=28S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold91	barrnap:0.9	rRNA	6992	7143	8.6e-34	-	.	Name=5_8S_rRNA;product=5.8S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold91	barrnap:0.9	rRNA	7558	9364	0	-	.	Name=18S_rRNA;product=18S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold91	barrnap:0.9	rRNA	12910	13783	1.3e-208	-	.	Name=28S_rRNA;product=28S ribosomal RNA (partial);note=aligned only 30 percent of the 28S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold956	barrnap:0.9	rRNA	1	1960	0	+	.	Name=28S_rRNA;product=28S ribosomal RNA (partial);note=aligned only 67 percent of the 28S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold956	barrnap:0.9	rRNA	5825	7631	0	+	.	Name=18S_rRNA;product=18S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold956	barrnap:0.9	rRNA	8043	10559	0	+	.	Name=28S_rRNA;product=28S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold956	barrnap:0.9	rRNA	8049	8200	8.6e-34	+	.	Name=5_8S_rRNA;product=5.8S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold956	barrnap:0.9	rRNA	10559	11804	0	+	.	Name=28S_rRNA;product=28S ribosomal RNA (partial);note=aligned only 42 percent of the 28S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold956	barrnap:0.9	rRNA	15661	16986	5.3e-164	+	.	Name=18S_rRNA;product=18S ribosomal RNA (partial);note=aligned only 70 percent of the 18S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold957	barrnap:0.9	rRNA	2054	6110	0	-	.	Name=28S_rRNA;product=28S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold957	barrnap:0.9	rRNA	5953	6104	8.6e-34	-	.	Name=5_8S_rRNA;product=5.8S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold957	barrnap:0.9	rRNA	6520	8326	0	-	.	Name=18S_rRNA;product=18S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold960	barrnap:0.9	rRNA	2	94	2.1e-16	-	.	Name=5S_rRNA;product=5S ribosomal RNA (partial);note=aligned only 78 percent of the 5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold960	barrnap:0.9	rRNA	7064	7178	8.2e-22	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold960	barrnap:0.9	rRNA	9260	9374	8.2e-22	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold960	barrnap:0.9	rRNA	11453	11567	8.2e-22	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold960	barrnap:0.9	rRNA	13649	13763	8.2e-22	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold961	barrnap:0.9	rRNA	1866	1980	8.2e-22	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold961	barrnap:0.9	rRNA	4064	4178	5e-22	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold961	barrnap:0.9	rRNA	6254	6368	8.2e-22	-	.	Name=5S_rRNA;product=5S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold997	barrnap:0.9	rRNA	925	5122	0	-	.	Name=28S_rRNA;product=28S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold997	barrnap:0.9	rRNA	4965	5116	8.6e-34	-	.	Name=5_8S_rRNA;product=5.8S ribosomal RNA
+Pocillopora_tuahiniensis_scaffold997	barrnap:0.9	rRNA	5531	6382	1.5e-169	-	.	Name=18S_rRNA;product=18S ribosomal RNA (partial);note=aligned only 45 percent of the 18S ribosomal RNA

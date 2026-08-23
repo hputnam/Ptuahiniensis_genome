@@ -11,22 +11,15 @@
 #SBATCH -e slurm-%j.error
 #SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
 
-module load conda/latest 
-conda activate /work/pi_hputnam_uri_edu/conda/envs/repeatmodeler 
+module load conda/latest
+conda activate /work/pi_hputnam_uri_edu/conda/envs/hifiasm
 
 cd /scratch4/workspace/jillashey_uri_edu-Ptua_genome
 
-echo "Run repeatmasker using the output from repeatmodeler" $(date)
+echo "Starting assembly with hifiasm" $(date)
 
-RepeatMasker \
-	-lib ptua_repeat_db-families.fa \
-	-engine ncbi \
-	-parallel 20 \
-	-gff -xsmall -s \
-	-poly \
-	-dir ptua_softmasked \
-	-a \
-	Pocillopora_tuahiniensis_genome_v1.0.fasta
+hifiasm -o Ptua_hifiasm /work/pi_hputnam_uri_edu/Ptua_genome/Ptua_hifi_reads.fasta --primary -s 0.55 -t 8 2> Ptua_hifiasm_s55_primary.log
 
-echo "Repeatmasker complete" $(date)
+echo "Assembly with hifiasm complete!" $(date)
+
 conda deactivate

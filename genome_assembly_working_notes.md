@@ -2048,32 +2048,1094 @@ echo "InterProScan analysis completed at:" $(date)
 
 Submitted batch job 61905140 
 
-Install funannotate and blobtools 
+Run funannotate to merge the functional annotations. `funannotate_merge.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=24         
+#SBATCH --partition=gpu
+#SBATCH -G 1
+#SBATCH --no-requeue
+#SBATCH --mem=100GB                
+#SBATCH -t 120:00:00                
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+echo "Install  funannotate" $(date)
+
+# load modules 
+module load conda/latest 
+
+# Install 
+conda activate base
+conda create -p /work/pi_hputnam_uri_edu/conda/envs/funannotate -c conda-forge -c bioconda funannotate python=3.8 -y
+conda activate /work/pi_hputnam_uri_edu/conda/envs/funannotate
+
+echo "Installation complete, automate funannotate db path" $(date)
+
+# Create the environment hook directories
+mkdir -p /work/pi_hputnam_uri_edu/conda/envs/funannotate/etc/conda/activate.d
+mkdir -p /work/pi_hputnam_uri_edu/conda/envs/funannotate/etc/conda/deactivate.d
+
+# Write the export/unset rules to the hooks
+echo "export FUNANNOTATE_DB=/work/pi_hputnam_uri_edu/funannotate_db" >> /work/pi_hputnam_uri_edu/conda/envs/funannotate/etc/conda/activate.d/funannotate.sh
+echo "unset FUNANNOTATE_DB" >> /work/pi_hputnam_uri_edu/conda/envs/funannotate/etc/conda/deactivate.d/funannotate.sh
+
+# Reactivate the environment to apply the change instantly
+conda activate /work/pi_hputnam_uri_edu/conda/envs/funannotate
+conda deactivate 
+
+conda activate /work/pi_hputnam_uri_edu/conda/envs/funannotate
+echo "Download and format dbs" $(date)
+mkdir -p /scratch4/workspace/jillashey_uri_edu-Ptua_genome/funannotate_db
+funannotate setup -d /scratch4/workspace/jillashey_uri_edu-Ptua_genome/funannotate_db -b metazoa --wget
+funannotate check --show-versions
+
+echo "Merge functional annotations" $(date)
+#source $(conda info --base)/etc/profile.d/conda.sh
+#conda activate /work/pi_hputnam_uri_edu/conda/envs/funannotate
+
+# Define file paths 
+GENOME_FASTA="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/ptua_softmasked/Pocillopora_tuahiniensis_genome_v1.0.fasta"  
+BRAKER_GFF="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/braker3_output/braker.gff3"
+EGGNOG_ANNO="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/func_anno/Ptua_eggnog.emapper.annotations"
+IPRSCAN_XML="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/func_anno/Ptua_iprscan.xml"
+OUT_DIR="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/funannotate_output"
+
+mkdir -p ${OUT_DIR}
+
+funannotate annotate --gff ${BRAKER_GFF} --fasta ${GENOME_FASTA} -s "Pocillopora tuahiniensis" --busco_db metazoa --eggnog ${EGGNOG_ANNO} --iprscan ${IPRSCAN_XML} --cpus ${SLURM_CPUS_PER_TASK} -o ${OUT_DIR}
+
+echo "Functional annotation merge complete" $(date)
+```
+
+Submitted batch job 61941803
+
+and blobtools 
 
 ```
 module load conda/latest 
 #conda activate base
 
-# (Specifying Python 3.8 ensures compatibility with all funannotate dependencies)
-conda create -p /work/pi_hputnam_uri_edu/conda/envs/funannotate -c conda-forge -c bioconda funannotate python=3.8 -y
-
 conda create -p /work/pi_hputnam_uri_edu/conda/envs/blobtools -c conda-forge -c bioconda blobtoolkit firefox geckodriver -y
 ```
 
+# Starting over???
+
+Okay we are really starting from square 1 here. I NEED TO DO THE FOLLOWING. I tried uploading the genome to ncbi but it came back with contaminant hits. after asking AIs, it told me to: 
+
+- Clean Adapters: Run hiFiAdapterFilt on raw HiFi reads. https://github.com/sheinasim-USDA/HiFiAdapterFilt/blob/master/hifiadapterfilt.sh
+- Assemble nuclear: Run hifiasm on the cleaned reads (utilizing its internal purge). IF NEEDED: https://github.com/dfguan/purge_dups
+- Assemble mito 
+- Decontaminate Contigs: Run FCS-GX on the primary contigs to strip out remaining Symbiodiniaceae and bacterial scaffolds. https://github.com/ncbi/fcs-gx. https://github.com/ncbi/fcs/wiki/FCS-GX-quickstart
+- Check Duplication: Run BUSCO. (Optional: run standalone purge_dups only if duplicate stats are high).
+- Scaffold: Run nt-links on the cleaned, deduplicated primary host contigs.
+- rename genome contigs
+- Run BUSCO/Quast on scaffolded genome 
+- repeat modeler 
+- repeat masker 
+- braker3
+- trnascan 
+- barrnap
+- funannotate (or follow whatever the porites harrisoni did)
+
+maybe make plot showing raw reads and filtered reads???
+
+## Clean adapters 
+
+Let's remove the adapters first using [hiFiAdapterFilt](https://github.com/sheinasim-USDA/HiFiAdapterFilt/) on raw HiFi reads. Install. 
+
+```
+module load conda/latest 
+conda create -p /work/pi_hputnam_uri_edu/conda/envs/hifiadapterfilt -c conda-forge -c bioconda blast bamtools samtools fastp coreutils -y
+conda activate /work/pi_hputnam_uri_edu/conda/envs/hifiadapterfilt
+
+mkdir -p /work/pi_hputnam_uri_edu/conda/tools
+cd /work/pi_hputnam_uri_edu/conda/tools
+git clone https://github.com/sheinasim-USDA/HiFiAdapterFilt.git
+chmod +x /work/pi_hputnam_uri_edu/conda/tools/HiFiAdapterFilt/hifiadapterfilt.sh
+```
+
+Remove adapters. `nano remove_hifi_adapters.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=ALL
+#SBATCH --ntasks=1 --cpus-per-task=24
+#SBATCH --partition=uri-cpu,cpu,cpu-preempt
+#SBATCH --no-requeue
+#SBATCH --mem=100GB
+#SBATCH -t 24:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+# Load environment
+module load conda/latest
+conda activate /work/pi_hputnam_uri_edu/conda/envs/hifiadapterfilt
+
+# Export tool and DB paths into PATH
+export PATH="/work/pi_hputnam_uri_edu/conda/tools/HiFiAdapterFilt:$PATH"
+export PATH="/work/pi_hputnam_uri_edu/conda/tools/HiFiAdapterFilt/DB:$PATH"
+
+# Setup working and output directories
+WORK_DIR="/scratch4/workspace/jillashey_uri_edu-Ptua_genome"
+OUT_DIR="${WORK_DIR}/adapter_filtered"
+mkdir -p ${OUT_DIR}
+
+cd ${WORK_DIR}
+
+# Ensure input FASTQ is symlinked in current directory
+ln -sf /work/pi_hputnam_uri_edu/Ptua_genome/Ptua_hifi_reads.fastq.gz .
+
+echo "Starting adapter removal:" $(date)
+
+# Execute via full path
+bash /work/pi_hputnam_uri_edu/conda/tools/HiFiAdapterFilt/hifiadapterfilt.sh \
+  -p Ptua_hifi_reads \
+  -t 24 \
+  -o ${OUT_DIR}
+
+echo "Adapter removal complete:" $(date)
+```
+
+Submitted batch job 63132086
+
+check how many reads so far. `nano read_check.sh`
+
+```
+awk '/^>/ { if (seq) {print header"\t"length(seq)}; header=substr($0,2); seq="" ; next } 
+     {seq=seq$0} 
+     END {print header"\t"length(seq)}' Ptua_hifi_reads.fasta > Ptua_rr_read_lengths.txt
+
+echo "Read length summary complete" $(date)
+```
+
+okay this keeps stalling out. going back to just removing the contam reads and then will run fsc-gx after assembly (and maybe blobtoolkit). need to rerun all the blast again because i deleted the files because im dumb. Here are the jobs:
+
+- viral = 63185360
+- euk = 63185410
+- prok = 63185495
+- sym = 63185530
+- mito = 63185557
 
 
-STILL NEED TO INSTALL
+## Assembly of nuclear genome 
+
+Run on adapter-filtered data. Submitted batch job 63185864
+
+Convert gfa to fasta. 
+
+```
+awk '/^S/{print ">"$2"\n"$3}' Ptua_hifiasm.p_ctg.gfa | fold > Ptua_primary.fasta
+grep -c ">" Ptua_primary.fasta
+3454
+```
+
+## FCS-GX 
+
+Install 
+
+```
+module load apptainer/latest
+
+mkdir -p /work/pi_hputnam_uri_edu/conda/tools/fcs_gx
+cd /work/pi_hputnam_uri_edu/conda/tools/fcs_gx
+
+# Download runner script
+curl -LO https://github.com/ncbi/fcs/raw/main/dist/fcs.py
+chmod +x fcs.py
+
+# Download the official Apptainer/Singularity container image
+curl https://ftp.ncbi.nlm.nih.gov/genomes/TOOLS/FCS/releases/latest/fcs-gx.sif -Lo fcs-gx.sif
+export FCS_DEFAULT_IMAGE=fcs-gx.sif
+```
+
+Download fcs-gx db. `nano download_fcs_db.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --job-name=download_fcs_db
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --partition=gpu
+#SBATCH -G 1
+#SBATCH --mem=32GB
+#SBATCH -t 12:00:00
+#SBATCH -o download_db_%j.out
+#SBATCH -e download_db_%j.err
+
+# Load Apptainer or Singularity
+module load apptainer 2>/dev/null || module load singularity 2>/dev/null
+
+cd /work/pi_hputnam_uri_edu/conda/tools/fcs_gx
+
+export FCS_DEFAULT_IMAGE=fcs-gx.sif
+export NCBI_FCS_REPORT_ANALYTICS=0
+
+LOCAL_DB="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/fcs_gx_db"
+SOURCE_DB_MANIFEST="https://ncbi-fcs-gx.s3.amazonaws.com/gxdb/latest/all.manifest"
+
+echo "Starting FCS-GX database download..." $(date)
+
+# Download database
+python3 fcs.py db get --mft "$SOURCE_DB_MANIFEST" --dir "$LOCAL_DB/gxdb"
+
+# Check integrity
+python3 fcs.py db check --mft "$SOURCE_DB_MANIFEST" --dir "$LOCAL_DB/gxdb"
+
+echo "Download and verification complete!" $(date)
+```
+
+Submitted batch job 63028548.
+
+Run the fcs-gx screen on the assembled data. `nano fcs_gx_screen.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --job-name=fcs_gx_screen
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=24
+#SBATCH --partition=uri-gpu
+#SBATCH --gres=gpu:1
+#SBATCH --mem=500GB
+#SBATCH -t 24:00:00
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+# Load Apptainer module
+module load apptainer/latest 
+module load conda/latest
+
+# Go to location 
+cd /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+# Environment Setup
+export PATH="/work/pi_hputnam_uri_edu/conda/tools/fcs_gx:$PATH"
+export FCS_DEFAULT_IMAGE="/work/pi_hputnam_uri_edu/conda/tools/fcs_gx/fcs-gx.sif"
+export NCBI_FCS_REPORT_ANALYTICS=0
+
+# Path Variables
+LOCAL_DB="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/fcs_gx_db/gxdb"
+ASSEMBLY="Ptua_primary.fasta"
+OUTDIR="fcs_gx_output"
+TAX_ID="3041103" # NCBI taxon ID for Ptua
+
+echo "Starting FCS-GX Screening:" $(date)
+
+# Run FCS-GX Screen
+python3 /work/pi_hputnam_uri_edu/conda/tools/fcs_gx/fcs.py screen genome \
+    --fasta "$ASSEMBLY" \
+    --out-dir "$OUTDIR" \
+    --gx-db "$LOCAL_DB" \
+    --tax-id "$TAX_ID"
+
+echo "FCS-GX Screening Complete:" $(date)
+```
+
+Submitted batch job 63260007. Look at output
+
+```
+wc -l *
+   1517 Ptua_primary.3041103.fcs_gx_report.txt
+   3549 Ptua_primary.3041103.taxonomy.rpt
+   
+head Ptua_primary.3041103.fcs_gx_report.txt
+##[["FCS genome report", 2, 1], {"git-rev": "v0.5.5-0-g0bda491", "run-date": "Wed Aug 19 18:41:53 2026", "db": {"build-date": "2023-01-24", "seqs": 3025824, "Gbp": 709.264}, "run-info": {"agg-cvg": 0.914332, "a
+sserted-div": "anml:basal metazoans", "inferred-primary-divs": ["anml:basal metazoans"], "corrected-primary-divs": ["anml:basal metazoans"], "genome-hash": "c2b2b0c34dfe2c91"}}]
+#seq_id start_pos       end_pos seq_len action  div     agg_cont_cov    top_tax_name
+ptg000035l      1       17191   17191   EXCLUDE prst:alveolates 100     Cladocopium goreaui
+ptg000052l      1       22417   22417   EXCLUDE prst:alveolates 97      Cladocopium goreaui
+ptg000061l      1       12330   12330   EXCLUDE prst:alveolates 98      Cladocopium goreaui
+ptg000087l      1       32084   32084   EXCLUDE prst:alveolates 100     Cladocopium goreaui
+ptg000093l      1       16701   16701   EXCLUDE prst:alveolates 92      Cladocopium goreaui
+ptg000100l      1       37907   37907   EXCLUDE prst:alveolates 100     Cladocopium goreaui
+ptg000117l      1       24483   24483   EXCLUDE prst:alveolates 100     Cladocopium goreaui
+ptg000120l      1       16286   16286   EXCLUDE prst:alveolates 93      Cladocopium goreaui
+
+head Ptua_primary.3041103.taxonomy.rpt
+##[["GX taxonomy analysis report", 3, 1], {"git-rev": "v0.5.5-0-g0bda491", "run-date": "Wed Aug 19 18:41:53 2026", "db": {"build-date": "2023-01-24", "seqs": 3025824, "Gbp": 709.264}, "run-info": {"agg-cvg": 0.
+914332, "asserted-div": "anml:basal metazoans", "inferred-primary-divs": ["anml:basal metazoans"], "corrected-primary-divs": ["anml:basal metazoans"], "genome-hash": "c2b2b0c34dfe2c91"}}]
+#seq-id seq-len (xp,lc,co,n,mt,pt,pm)-len       cvg-by-all      sep1    tax-name-1      tax-id-1        div-1   cvg-by-div-1    cvg-by-tax-1    score-1 sep2    tax-id-2        div-2   cvg-by-div-2    cvg-by-tax
+-2      score-2 sep3    tax-id-3        div-3   cvg-by-div-3    cvg-by-tax-3    score-3 sep4    tax-id-4        div-4   cvg-by-div-4    cvg-by-tax-4    score-4 sep5    reserved        result  div     div_pct_cv
+g
+ptg000001l      120232  7267,326,1060,0,0,0,0   115276  |       Pocillopora damicornis  46731   anml:basal metazoans    114829  109833  2311    |       50429   anml:basal metazoans    114829  96625   1076    |6
+84658   anml:insects    9930    5107    108     |       41139   anml:insects    9930    3708    88      |       n/a     primary-div     anml:basal metazoans    96
+ptg000002l      77629   2957,167,0,0,0,0,0      71135   |       Pocillopora damicornis  46731   anml:basal metazoans    70848   63634   1208    |       50429   anml:basal metazoans    70848   36503   511     |1
+454006  prok:CFB group bacteria 2576    2576    54      |       3986    plnt:plants     2574    2110    52      |       n/a     primary-div     anml:basal metazoans    91
+ptg000003l      885951  63461,9264,7820,0,0,0,0 855802  |       Pocillopora damicornis  46731   anml:basal metazoans    852803  828958  6141    |       50429   anml:basal metazoans    852803  600533  2298    |6
+596     anml:molluscs   21941   6115    116     |       7574    anml:brachiopods        5314    5314    105     |       n/a     primary-div     anml:basal metazoans    96
+ptg000004l      451498  93446,2848,180,0,0,0,0  333893  |       Pocillopora damicornis  46731   anml:basal metazoans    327871  204556  2217    |       50429   anml:basal metazoans    327871  227113  1294    |2
+921223  anml:insects    6141    2740    59      |       189913  anml:insects    6141    1929    50      |       n/a     primary-div     anml:basal metazoans    73
+ptg000005l      739090  45866,2924,3320,0,0,0,0 677102  |       Pocillopora damicornis  46731   anml:basal metazoans    674467  597413  5122    |       50429   anml:basal metazoans    674467  453398  2092    |3
+2391    anml:insects    16989   4437    85      |       64838   anml:insects    16989   3709    82      |       n/a     primary-div     anml:basal metazoans    91
+ptg000006l      168255  17602,5845,100,0,0,0,0  149031  |       Pocillopora damicornis  46731   anml:basal metazoans    148286  139992  1876    |       50429   anml:basal metazoans    148286  48523   510     |5
+7068    anml:birds      1308    911     41      |       88015   anml:crustaceans        1521    1207    40      |       n/a     primary-div     anml:basal metazoans    88
+ptg000007l      591912  34918,2822,780,0,0,0,0  543668  |       Pocillopora damicornis  46731   anml:basal metazoans    540007  474222  4594    |       50429   anml:basal metazoans    540007  363781  1739    |9
+5602    anml:crustaceans        9351    6137    86      |       144034  anml:insects    8181    3798    79      |       n/a     primary-div     anml:basal metazoans    91
+ptg000008l      507378  31855,1223,0,0,0,0,0    438064  |       Pocillopora damicornis  46731   anml:basal metazoans    433328  387819  3752    |       50429   anml:basal metazoans    433328  273718  1564    |2
+138241  anml:nematodes  3610    3050    60      |       2607531 anml:molluscs   3713    2573    56      |       n/a     primary-div     anml:basal metazoans    85
+```
+
+Clean the contaminants. `nano fcs_gx_clean.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=ALL
+#SBATCH --ntasks=1 --cpus-per-task=24
+#SBATCH --partition=uri-cpu
+#SBATCH --no-requeue
+#SBATCH --mem=100GB
+#SBATCH -t 24:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+# Load modules 
+module load uri/main
+module load seqtk/1.4-GCC-12.3.0
+
+# Go to location 
+cd /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+echo "Starting FCS-GX Cleaning:" $(date)
+
+# Extract non-comment sequence IDs into a list of contigs to remove
+grep -v "^#" fcs_gx_output/Ptua_primary.3041103.fcs_gx_report.txt | awk '{print $1}' | sort -u > contigs_to_remove.txt
+
+# Make a list of all reads 
+grep "^>" Ptua_primary.fasta | sed 's/^>//' > Ptua_primary.txt
+
+# Make a list of filtered reads only 
+grep -v -F -f contigs_to_remove.txt Ptua_primary.txt > filtered_contigs.txt
+
+# Filter reads 
+seqtk subseq -v Ptua_primary.fasta filtered_contigs.txt > Ptua_primary_clean.fasta
+
+grep -c ">" Ptua_primary.fasta
+grep -c ">" Ptua_primary_clean.fasta
+
+echo "FCS-GX Cleaning Complete:" $(date)
+```
+
+Submitted batch job 63268839. Success! 
+
+## ntlinks to further scaffold assembly 
+
+`nano ntlinks.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=ALL
+#SBATCH --ntasks=1 --cpus-per-task=24
+#SBATCH --partition=uri-cpu,cpu,cpu-preempt
+#SBATCH --no-requeue
+#SBATCH --mem=100GB
+#SBATCH -t 72:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+module load uri/main
+module load conda/latest
+conda activate /work/pi_hputnam_uri_edu/conda/envs/ntlink 
+
+echo "Starting scaffolding of hifiasm primary assembly with ntlinks (rounds = 5)" $(date)
+
+cd /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+ntLink_rounds run_rounds_gaps \
+t=36 \
+g=100 \
+rounds=5 \
+gap_fill \
+target= Ptua_primary_clean.fasta \
+reads=/work/pi_hputnam_uri_edu/Ptua_genome/Ptua_hifi_reads.fastq.gz \
+out_prefix=Ptua_primary_clean_ntlinks
+
+echo "Scaffolding of hifiasm primary assembly with ntlinks (rounds = 5) complete!" $(date)
+```
+
+Submitted batch job 63271435.
+
+Check out the output: 
+
+```
+grep -c ">" Ptua_primary_clean.fasta.k32.w100.z1000.ntLink.gap_fill.5rounds.fa
+1137
+```
+
+## Polish with minimap2 and racon 
+
+`nano racon_polish.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=ALL
+#SBATCH --ntasks=1 --cpus-per-task=24
+#SBATCH --partition=uri-cpu,cpu,cpu-preempt
+#SBATCH --no-requeue
+#SBATCH --mem=200GB
+#SBATCH -t 24:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+# Load modules 
+module load uri/main 
+module load all/Racon/1.5.0-GCCcore-12.3.0 
+module load all/minimap2/2.26-GCCcore-12.3.0
+
+echo "Aligning raw reads to scaffolded assembly" $(date)
+minimap2 -x map-hifi -t 36 \
+    Ptua_primary_clean.fasta.k32.w100.z1000.ntLink.gap_fill.5rounds.fa \
+    /work/pi_hputnam_uri_edu/Ptua_genome/Ptua_hifi_reads.fastq.gz \
+    > ptua_ntlink_mapped.paf
+
+echo "Alignment complete, polish" $(date)
+
+# Polish filled gap regions
+racon -t 36 \
+    /work/pi_hputnam_uri_edu/Ptua_genome/Ptua_hifi_reads.fastq.gz \
+    ptua_ntlink_mapped.paf \
+    Ptua_primary_clean.fasta.k32.w100.z1000.ntLink.gap_fill.5rounds.fa \
+    > Ptua_polished.fasta
+
+echo "Polishing complete!" $(date)
+
+rm ptua_ntlink_mapped.paf
+```
+
+Submitted batch job 63355430. Check output: 
+
+```
+grep -c ">" Ptua_polished.fasta
+1137
+```
+
+## change scaffold names and clean with funannotate 
+
+Prep genome for annotation with funannotate. `nano clean_sort_genome.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=ALL
+#SBATCH --ntasks=1 --cpus-per-task=24
+#SBATCH --partition=uri-cpu,cpu,cpu-preempt
+#SBATCH --no-requeue
+#SBATCH --mem=200GB
+#SBATCH -t 24:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+module load conda/latest
+conda activate /work/pi_hputnam_uri_edu/conda/envs/funannotate
+
+echo "Remove duplicates and short contigs" $(date)
+
+funannotate clean -i Ptua_polished.fasta -o Ptua_cleaned.fasta --exhaustive 
+
+echo "Cleaning complete" $(date)
+
+conda deactivate
+```
+
+Submitted batch job 63364442
+
+## Rename genome 
 
 
+Rename the soft-masked genome file and the chromosome names. `nano rename_genome.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1        
+#SBATCH --partition=gpu
+#SBATCH -G 1
+#SBATCH --no-requeue
+#SBATCH --mem=50GB                
+#SBATCH -t 12:00:00                
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+# Define your file variables
+OLD_GENOME="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/Ptua_cleaned.fasta"
+NEW_GENOME="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/Pocillopora_tuahiniensis_genome_v1.0.fasta"
+MAP_FILE="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/scaffold_name_map.txt"
+
+# Run AWK to rename the headers and generate the mapping file simultaneously
+awk '
+BEGIN { count = 1 } 
+/^>/ { 
+    old_name = substr($1, 2); 
+    new_name = "Pocillopora_tuahiniensis_scaffold" count; 
+    print old_name "\t" new_name > "'"$MAP_FILE"'"; 
+    print ">" new_name; 
+    count++; 
+    next 
+} 
+{ print }
+' "$OLD_GENOME" > "$NEW_GENOME"
+```
+
+Submitted batch job 63366857
+
+## Quast and busco 
+
+`nano quast.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 --ntasks-per-node=1
+#SBATCH --partition=uri-cpu
+#SBATCH --no-requeue
+#SBATCH --mem=25GB
+#SBATCH -t 24:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL #email you when job starts, stops and/or fails
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+module load uri/main
+module load QUAST/5.0.2-foss-2021b
+
+echo "Begin quast of assembled genome" $(date)
+
+quast --eukaryote \
+Pocillopora_tuahiniensis_genome_v1.0.fasta \
+Ptua_polished.fasta \
+Ptua_primary_clean.fasta.k32.w100.z1000.ntLink.gap_fill.5rounds.fa \
+Ptua_primary_clean.fasta \
+Ptua_primary.fasta \
+Pver_genome_assembly_v1.0.fasta \
+/work/pi_hputnam_uri_edu/HI_Genomes/Pmeandrina/Pocillopora_meandrina_HIv1.assembly.fasta \
+/work/pi_hputnam_uri_edu/HI_Genomes/PacutaV2/Pocillopora_acuta_HIv2.assembly.fasta \
+-o quast
+
+echo "Quast complete" $(date)
+```
+
+Submitted batch job 63367331
+
+`nano busco.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 --ntasks-per-node=1
+#SBATCH --partition=gpu
+#SBATCH -G 1
+#SBATCH --no-requeue
+#SBATCH --mem=100GB
+#SBATCH -t 47:00:00
+#SBATCH --mail-type=BEGIN,END,FAIL #email you when job starts, stops and/or fails
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
+
+echo "Running busco on Ptua assembled and masked genome" $(date)
+echo "Creating output directory: Ptua_genome_busco" $(date)
+mkdir -p /work/pi_hputnam_uri_edu/Ptua_genome/Ptua_genome_busco/
+export PATH="/work/pi_hputnam_uri_edu/conda/envs/env-busco/bin:$PATH"
+
+module load conda/latest 
+conda activate /work/pi_hputnam_uri_edu/conda/envs/env-busco
+module load uri/main HMMER/3.4-gompi-2023a
+python -c "import shutil; print('Resolved hmmsearch path:', shutil.which('hmmsearch'))"
+
+echo "START busco on genome" $(date)
+
+#set query file
+query="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/Pocillopora_tuahiniensis_genome_v1.0.fasta"
+
+#configure BUSCO ini file
+busco -f -c 15 \
+  -i "${query}" \
+  -l metazoa_odb10 \
+  -o Ptua_genome_busco \
+  -m genome \
+  --download_path /work/pi_hputnam_uri_edu/lineages
+
+echo "Busco complete" $(date)
+```
+
+Submitted batch job 63367447. results: 
+
+```
+	***** Results: *****
+
+	C:96.4%[S:91.3%,D:5.1%],F:0.8%,M:2.7%,n:954,E:4.3%	   
+	920	Complete BUSCOs (C)	(of which 40 contain internal stop codons)		   
+	871	Complete and single-copy BUSCOs (S)	   
+	49	Complete and duplicated BUSCOs (D)	   
+	8	Fragmented BUSCOs (F)			   
+	26	Missing BUSCOs (M)			   
+	954	Total BUSCO groups searched		   
+
+Assembly Statistics:
+	1137	Number of scaffolds
+	1137	Number of contigs
+	356090324	Total length
+	0.000%	Percent gaps
+	738 KB	Scaffold N50
+	738 KB	Contigs N50
+```
 
 
-https://github.com/SequAna-Ukon/Porites_harrisoni_genome
+## repeat modeler
+
+`nano repeatmodeler.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 --ntasks-per-node=8
+#SBATCH --partition=uri-cpu
+#SBATCH --no-requeue
+#SBATCH --mem=100GB
+#SBATCH -t 5-00:00:00
+#SBATCH -q long
+#SBATCH --mail-type=BEGIN,END,FAIL #email you when job starts, stops and/or fails
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+module load conda/latest 
+conda activate /work/pi_hputnam_uri_edu/conda/envs/repeatmodeler 
+
+cd /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+echo "Building repeatmodeler database" $(date)
+
+BuildDatabase -name ptua_repeat_db Pocillopora_tuahiniensis_genome_v1.0.fasta
+
+echo "Db build complete, run repeatmodeler" $(date)
+
+RepeatModeler -database ptua_repeat_db -engine ncbi -LTRStruct -threads 15
+
+echo "Repeatmodeler complete" $(date)
+
+conda deactivate
+```
+
+Submitted batch job 63369032
+
+## repeat masker 
+
+`nano repeatmasker.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 --ntasks-per-node=8
+#SBATCH --partition=uri-cpu
+#SBATCH --no-requeue
+#SBATCH --mem=100GB
+#SBATCH -t 5-00:00:00
+#SBATCH -q long
+#SBATCH --mail-type=BEGIN,END,FAIL #email you when job starts, stops and/or fails
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /work/pi_hputnam_uri_edu/Ptua_genome
+
+module load conda/latest 
+conda activate /work/pi_hputnam_uri_edu/conda/envs/repeatmodeler 
+
+cd /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+echo "Run repeatmasker using the output from repeatmodeler" $(date)
+
+RepeatMasker \
+	-lib ptua_repeat_db-families.fa \
+	-engine ncbi \
+	-parallel 20 \
+	-gff -xsmall -s \
+	-poly \
+	-dir ptua_softmasked \
+	-a \
+	Pocillopora_tuahiniensis_genome_v1.0.fasta
+
+echo "Repeatmasker complete" $(date)
+```
+
+Submitted batch job 63459474
+
+## hisat2 
+
+Align RNAseq reads to assembled genome for braker3 
+
+`nano hisat2.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=24         
+#SBATCH --partition=uri-cpu
+#SBATCH --no-requeue
+#SBATCH --mem=100GB                
+#SBATCH -t 48:00:00                
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+# load modules needed
+module purge 
+
+# Load modules
+module load uri/main
+module load all/HISAT2/2.2.1-gompi-2022a
+module load all/SAMtools/1.18-GCC-12.3.0
+
+GENOME="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/ptua_softmasked/Pocillopora_tuahiniensis_genome_v1.0.fasta.masked"
+INDEX="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/ptua_softmasked/Ptua_ref"
+FASTQ_DIR="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/rna_fastq"
+BAM_OUT_DIR="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/rna_bams"
+
+# Ensure output directory exists
+mkdir -p ${BAM_OUT_DIR}
+
+echo "Building genome reference:" $(date)
+# Build HISAT2 index using your variables
+hisat2-build -f ${GENOME} ${INDEX}
+echo "Reference genome indexed. Starting alignment:" $(date)
+
+# Move into the fastq directory to easily process files
+cd ${FASTQ_DIR}
+
+# Loop through all Forward (R1) files
+for r1_file in *_R1_*.fq.gz; do
+    sample_name=$(echo "${r1_file}" | awk -F "_R1_" '{print $1}')
+    r2_file=$(echo "${r1_file}" | sed 's/_R1_/_R2_/')
+    echo "Processing sample: ${sample_name} at $(date)"
+    hisat2 -p 24 \
+   	   --rna-strandness RF \
+           --dta \
+           -x ${INDEX} \
+           -1 ${r1_file} \
+           -2 ${r2_file} \
+           --summary-file ${BAM_OUT_DIR}/${sample_name}_align_stats.txt \
+           -S ${BAM_OUT_DIR}/${sample_name}.sam
+    echo "Sorting and converting ${sample_name} to BAM..."
+    samtools sort -@ 24 \
+                  -o ${BAM_OUT_DIR}/${sample_name}.sorted.bam \
+                  ${BAM_OUT_DIR}/${sample_name}.sam
+    samtools index ${BAM_OUT_DIR}/${sample_name}.sorted.bam
+    rm ${BAM_OUT_DIR}/${sample_name}.sam
+    echo "Sample ${sample_name} alignment complete!"
+    echo "----------------------------------------"
+done
+
+echo "All alignments complete at:" $(date)
+```
+
+Submitted batch job 63477655
 
 
+## Merge bams 
+
+`nano merge_bams.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=24         
+#SBATCH --partition=gpu
+#SBATCH -G 1
+#SBATCH --no-requeue
+#SBATCH --mem=100GB                
+#SBATCH -t 48:00:00                
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+module purge
+
+# Load modules
+module load uri/main
+module load all/SAMtools/1.18-GCC-12.3.0
+
+BAM_DIR="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/rna_bams"
+# Move into the fastq directory to easily process files
+cd ${BAM_DIR}
+
+echo "Merge bam files" $(date)
+samtools merge Ptua_RNAseqAll.bam *sorted.bam 
+
+echo "Merge complete" $(date)
+```
+
+## braker3
+
+`nano braker3.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=24         
+#SBATCH --partition=gpu
+#SBATCH -G 1
+#SBATCH --no-requeue
+#SBATCH --mem=150GB                
+#SBATCH -t 48:00:00                
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+echo "Starting BRAKER3 Stranded UTR Annotation Pipeline at:" $(date)
+
+#module load apptainer/latest
+
+# Load modules
+module load uri/main
+module load all/SAMtools/1.18-GCC-12.3.0
+
+BAM_DIR="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/rna_bams"
+# Move into the fastq directory to easily process files
+cd ${BAM_DIR}
+
+echo "Merge bam files" $(date)
+samtools merge Ptua_RNAseqAll.bam *sorted.bam 
+
+echo "Merge complete" $(date)
+
+module purge
+module load apptainer/latest
 
 
+# ----------------------------------------------------
+# Define Input and Output Paths
+# ----------------------------------------------------
+GENOME="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/ptua_softmasked/Pocillopora_tuahiniensis_genome_v1.0.fasta.masked"
+PROTEINS="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/protein_seqs/final_proteins_for_braker.fa"
+OUT_DIR="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/braker3_output"
+SIF_IMAGE="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/braker3.sif"
+
+# Your newly merged master BAM file
+BAM_FILE="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/rna_bams/Ptua_RNAseqAll.bam"
+
+# ----------------------------------------------------
+# Setup Augustus Writeable Configuration Space
+# ----------------------------------------------------
+MY_AUG_CONFIG="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/augustus_config"
+if [ ! -d "$MY_AUG_CONFIG" ]; then
+    apptainer exec ${SIF_IMAGE} cp -r /opt/Augustus/config "$MY_AUG_CONFIG"
+    chmod -R 755 "$MY_AUG_CONFIG"
+fi
+
+export AUGUSTUS_CONFIG_PATH="$MY_AUG_CONFIG"
+#export JAVA_PATH="/usr/bin"
+export APPTAINER_CACHEDIR=/scratch4/workspace/jillashey_uri_edu-Ptua_genome/.apptainer_cache
+export APPTAINER_TMPDIR=/scratch4/workspace/jillashey_uri_edu-Ptua_genome/.apptainer_cache
+
+# Wiping previous outputs to ensure fresh model training
+rm -rf ${OUT_DIR}
+mkdir -p ${OUT_DIR}
+
+# ----------------------------------------------------
+# Run BRAKER3 with Full UTR Training
+# ----------------------------------------------------
+apptainer exec -B /work,/scratch4,${MY_AUG_CONFIG}:/opt/Augustus/config ${SIF_IMAGE} \
+    braker.pl \
+    --genome=${GENOME} \
+    --bam=${BAM_FILE} \
+    --prot_seq=${PROTEINS} \
+    --workingdir=${OUT_DIR} \
+    --threads=${SLURM_CPUS_PER_TASK} \
+    --AUGUSTUS_CONFIG_PATH=${MY_AUG_CONFIG} \
+   # --JAVA_PATH=${JAVA_PATH} \
+    --species=Pocillopora_tuahiniensis \
+    --gff3
+
+echo "BRAKER3 pipeline completed at:" $(date)
+```
+
+Submitted batch job 63517712
 
 
-10. funannotate for structural annotation and functional annotation
-11. Interproscan for functional annotation
-12. EggNOG for functional annotation
+## trnascan 
+
+`nano trnascan.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=24         
+#SBATCH --partition=uri-cpu
+#SBATCH --no-requeue
+#SBATCH --mem=100GB                
+#SBATCH -t 48:00:00                
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+echo "Starting tRNAscan-SE Analysis at:" $(date)
+
+module load conda/latest # need to load before making any conda envs
+conda activate /work/pi_hputnam_uri_edu/conda/envs/trnascan
+
+# Define your paths
+GENOME="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/ptua_softmasked/Pocillopora_tuahiniensis_genome_v1.0.fasta.masked"
+OUT_DIR="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/trnascan_output"
+
+mkdir -p ${OUT_DIR}
+
+tRNAscan-SE -E \
+            --threads ${SLURM_CPUS_PER_TASK} \
+            -o ${OUT_DIR}/Ptua-tRNA.out \
+            -f ${OUT_DIR}/Ptua-tRNA_struct.out \
+            -m ${OUT_DIR}/Ptua-tRNA_stats.out \
+            -j ${OUT_DIR}/Ptua-tRNA.gff3 \
+            -a ${OUT_DIR}/Ptua-tRNA.fasta \
+            -d \
+            ${GENOME}
+
+conda deactivate
+
+echo "tRNAscan analysis complete" $(date)
+```
+
+Submitted batch job 63477672
+
+```
+grep -c ">" Ptua-tRNA.fasta
+3897
+
+# Count functional tRNAs (excludes lines containing "Possible pseudogene")
+grep "^>" Ptua-tRNA.fasta | grep -v -i "pseudogene" | wc -l
+2179
+
+# Count pseudogenes only
+grep "^>" Ptua-tRNA.fasta | grep -i "pseudogene" | wc -l
+1718
+
+# Extract ONLY functional tRNAs into a clean FASTA file for annotation
+awk '{if(NR==1) {print $0} else {if($0 ~ /^>/) {if(flag==1) {print seq; seq=""}; if($0 ~ /pseudogene/i) {flag=0} else {flag=1; print $0}} else {if(flag==1) {seq = seq $0}}}} END {if(flag==1) print seq}' Ptua-tRNA.fasta > Ptua-tRNA-functional.fasta
+```
+
+## barrnap 
+
+`nano barrnap.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=24         
+#SBATCH --partition=uri-cpu
+#SBATCH --no-requeue
+#SBATCH --mem=100GB                
+#SBATCH -t 48:00:00                
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+echo "Starting barrnap Analysis at:" $(date)
+
+module load conda/latest # need to load before making any conda envs
+conda activate /work/pi_hputnam_uri_edu/conda/envs/barrnap
+
+GENOME="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/ptua_softmasked/Pocillopora_tuahiniensis_genome_v1.0.fasta.masked"
+OUT_DIR="/scratch4/workspace/jillashey_uri_edu-Ptua_genome/barrnap_output"
+
+mkdir -p ${OUT_DIR}
+
+barrnap --kingdom euk \
+        --threads ${SLURM_CPUS_PER_TASK} \
+        --outseq ${OUT_DIR}/Ptua_rRNA.fa \
+        ${GENOME} > ${OUT_DIR}/Ptua_rRNA.gff3
+
+echo "barrnap complete" $(date)
+conda deactivate
+```
+
+Submitted batch job 63477732.
+
+```
+grep -c ">" Ptua_rRNA.fa 
+130
+```
+
+## UTR annotation
+
+https://github.com/Gaius-Augustus/BRAKER/blob/utr_from_stringtie/scripts/stringtie2utr.py 
+
+`nano UTR_annotation.sh`
+
+```
+#!/usr/bin/env bash
+#SBATCH --export=NONE
+#SBATCH --nodes=1 
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=24         
+#SBATCH --partition=uri-cpu
+#SBATCH --no-requeue
+#SBATCH --mem=100GB                
+#SBATCH -t 48:00:00                
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -o slurm-%j.out
+#SBATCH -e slurm-%j.error
+#SBATCH -D /scratch4/workspace/jillashey_uri_edu-Ptua_genome
+
+echo "Starting tRNAscan-SE Analysis at:" $(date)
+
+module load python/3.9.19
+
+# python script from https://github.com/Gaius-Augustus/BRAKER/blob/utr_from_stringtie/scripts/stringtie2utr.py 
+
+echo "UTR annotation starting" $(date)
+
+##REVISE WITH MY DATA INPUT
+python stringtie2utr.py -g braker.gtf -s GeneMark-ETP/rnaseq/stringtie/transcripts_merged.gff -o braker_with_utrs.gtf
+
+echo "UTR annotation complete" $(date)
+```
+
+## egg nog
+
+```
+module load uri/main all/eggnog-mapper/2.1.9-foss-2022a
+```
+
+## IPS
+
+```
+module load uri/main all/InterProScan/5.73-104.0-foss-2024a
+```
+
+## merge annotations 
+
+https://funannotate.readthedocs.io/en/latest/annotate.html
